@@ -1,0 +1,2858 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Studentsupport_botProject — ABES EC Official AI Academic & Student Desk</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            abes: {
+              navy: '#0B2545',
+              blue: '#134074',
+              gold: '#D4AF37',
+              crimson: '#C1121F',
+              accent: '#1D4ED8',
+              card: '#0f172a'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- KaTeX for Math -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <!-- Marked for Markdown -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- Canvas Confetti for Quiz Victory -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.4); border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.7); }
+
+    /* 3D Flashcard Flip */
+    .perspective-1000 { perspective: 1000px; }
+    .transform-style-3d { transform-style: preserve-3d; }
+    .backface-hidden { backface-visibility: hidden; }
+    .rotate-y-180 { transform: rotateY(180deg); }
+    .flashcard-inner { transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); }
+    .flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+
+    /* Pulsing animations */
+    @keyframes subtle-pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+    .animate-subtle-pulse { animation: subtle-pulse 2s infinite ease-in-out; }
+  </style>
+</head>
+<body class="h-full bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
+
+  <!-- ========================================================================= -->
+  <!-- 1. TOP GLOBAL NAVBAR (ABES ERP / SIMS BRANDING & SHORTCUTS)               -->
+  <!-- ========================================================================= -->
+  <header class="bg-[#0B2545] text-white border-b border-[#134074] z-30 flex-shrink-0 sticky top-0 shadow-md">
+    <div class="px-4 py-2.5 flex items-center justify-between">
+      
+      <!-- Logo & Identity with Official ABES Institutional Emblem -->
+      <div class="flex items-center space-x-3">
+        <button id="mobileSidebarToggle" onclick="toggleMobileSidebar()" class="md:hidden p-1.5 rounded-lg hover:bg-white/10 text-slate-300">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+        <div class="flex items-center space-x-2.5 cursor-pointer" onclick="switchView('landing')">
+          <img src="/static/abes_logo.png" alt="ABES Logo" class="h-9 sm:h-10 w-auto object-contain bg-white rounded-lg p-0.5 shadow-md border border-amber-400/40" onerror="this.onerror=null; this.src='https://www.abes.ac.in/assets/Logo.png';">
+          <div>
+            <div class="flex items-center space-x-1.5">
+              <span class="font-bold tracking-tight text-white text-base">Studentsupport_botProject</span>
+              <span class="text-[10px] bg-amber-400/20 text-amber-300 border border-amber-400/40 px-1.5 py-0.2 rounded font-mono font-semibold">AKTU 032</span>
+            </div>
+            <div class="text-[11px] text-slate-300 flex items-center space-x-1.5">
+              <span>ABES Engineering College</span>
+              <span class="w-1 h-1 bg-amber-400 rounded-full inline-block"></span>
+              <span class="text-amber-300 font-medium">SIMS Student Desk</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Institutional ERP & Academic Links -->
+      <div class="hidden lg:flex items-center space-x-2 text-xs">
+        <button onclick="openErpPortal()" class="px-2.5 py-1 rounded bg-amber-400 hover:bg-amber-300 text-[#0B2545] font-bold flex items-center space-x-1.5 shadow-sm transition">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5 text-[#0B2545]"></i>
+          <span>ABES SIMS ERP</span>
+        </button>
+        <a href="https://erp.abes.ac.in" target="_blank" class="px-2.5 py-1 rounded bg-[#134074]/80 hover:bg-[#134074] text-slate-200 hover:text-white flex items-center space-x-1 border border-white/10 transition" title="Open Official External ABES ERP Server">
+          <i data-lucide="external-link" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span>Official Portal</span>
+        </a>
+        <a href="https://oneview.aktu.ac.in/WebPages/AKTU/OneView.aspx" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="px-2.5 py-1 rounded bg-[#134074]/80 hover:bg-[#134074] text-slate-200 hover:text-white flex items-center space-x-1 border border-white/10 transition" title="Open Official AKTU OneView Results Portal (Working ASPX)">
+          <i data-lucide="graduation-cap" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span>AKTU OneView</span>
+        </a>
+        <button onclick="switchView('dashboard'); showTool('admissions')" class="px-2.5 py-1 rounded bg-[#134074]/80 hover:bg-[#134074] text-slate-200 hover:text-white flex items-center space-x-1 border border-white/10 transition">
+          <i data-lucide="user-plus" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span>Admissions 2026</span>
+        </button>
+        <button onclick="switchView('dashboard'); showTool('fee-calculator')" class="px-2.5 py-1 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 flex items-center space-x-1 border border-amber-500/40 transition">
+          <i data-lucide="credit-card" class="w-3.5 h-3.5"></i>
+          <span>Fee Deadlines & Pay</span>
+        </button>
+      </div>
+
+      <!-- Right Header Actions (Profile, View Toggle, Theme) -->
+      <div class="flex items-center space-x-2.5">
+        <!-- Landing / Dashboard Switcher -->
+        <button id="viewToggleBtn" onclick="toggleMainView()" class="px-3 py-1.5 rounded-lg bg-amber-400 text-[#0B2545] font-semibold text-xs flex items-center space-x-1.5 shadow-md hover:bg-amber-300 transition">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+          <span id="viewToggleText">Open Dashboard</span>
+        </button>
+
+        <!-- Dark / Light Mode -->
+        <button onclick="toggleDarkMode()" class="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 hover:text-white transition" title="Toggle Dark/Light Mode">
+          <i data-lucide="moon" class="w-4 h-4 dark:hidden"></i>
+          <i data-lucide="sun" class="w-4 h-4 hidden dark:inline"></i>
+        </button>
+
+        <!-- Universal Student Profile / ERP Gateway Pill -->
+        <div id="navProfilePill" onclick="handleProfileClick()" class="flex items-center space-x-2 pl-2 border-l border-white/20 cursor-pointer group" title="Click to view student profile or login">
+          <div id="navProfileAvatar" class="w-7 h-7 rounded-full bg-slate-800 border border-white/20 text-amber-300 flex items-center justify-center text-xs font-bold ring-2 ring-amber-400/40">
+            <i data-lucide="user" class="w-4 h-4"></i>
+          </div>
+          <div class="hidden sm:block text-left">
+            <div id="navProfileName" class="text-xs font-semibold text-white group-hover:text-amber-300 transition leading-tight flex items-center space-x-1">
+              <span>Guest Student</span>
+              <span id="navAuthBadge" class="text-[9px] bg-slate-800 text-slate-300 px-1 rounded">Universal</span>
+            </div>
+            <div id="navProfileSub" class="text-[10px] text-slate-300">Click to Sign In to ABES ERP</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+
+  <!-- ========================================================================= -->
+  <!-- 2. VIEW A: LANDING PAGE (PORTAL OVERVIEW & PUBLIC ACCESS)                 -->
+  <!-- ========================================================================= -->
+  <main id="landingPageView" class="flex-1 overflow-y-auto">
+    
+    <!-- Hero Section -->
+    <section class="relative overflow-hidden bg-gradient-to-b from-[#0B2545] via-[#134074] to-slate-900 text-white py-16 lg:py-24 px-4 sm:px-6 lg:px-8">
+      <!-- Glow Gradients -->
+      <div class="absolute -top-40 -right-40 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="max-w-6xl mx-auto relative z-10 text-center">
+        <!-- Prominent ABES Official Brand & Logo Banner -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
+          <div class="bg-white/95 backdrop-blur-md rounded-2xl px-5 py-3 shadow-2xl border border-amber-400/50 flex items-center space-x-4">
+            <img src="/static/abes_logo.png" alt="ABES Engineering College Official Logo" class="h-14 sm:h-16 w-auto object-contain filter drop-shadow" onerror="this.onerror=null; this.src='https://www.abes.ac.in/assets/Logo.png';">
+            <div class="text-left border-l border-slate-300 pl-4">
+              <div class="text-sm font-black tracking-tight text-[#0B2545]">ABES ENGINEERING COLLEGE</div>
+              <div class="text-[11px] font-semibold text-slate-700">Campus: 19th KM Stone, NH-09, Ghaziabad (UP)</div>
+              <div class="text-[10px] text-amber-700 font-mono font-medium">AKTU College Code: 032 • NAAC 'A' Grade • NBA Accredited</div>
+            </div>
+          </div>
+          <div class="inline-flex items-center space-x-2 px-3.5 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-medium text-amber-300">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Universal Student AI & SIMS ERP Security Gateway</span>
+          </div>
+        </div>
+        
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight max-w-4xl mx-auto leading-tight">
+          Your AI Study Partner, <br>
+          <span class="bg-clip-text text-transparent bg-gradient-to-r from-amber-300 via-amber-200 to-indigo-200">
+            Available 24/7 for ABESians
+          </span>
+        </h1>
+
+        <p class="mt-6 text-base sm:text-lg text-slate-300 max-w-3xl mx-auto leading-relaxed">
+          Studentsupport_botProject provides verified information on the B.Tech admission process, faculty directory, CRC placements (₹45 LPA highest package), Central Library book bank scheme, hostel mess schedules, and instant academic guidance.
+        </p>
+
+        <!-- CTA Buttons -->
+        <div class="mt-8 flex flex-wrap justify-center gap-4">
+          <button onclick="switchView('dashboard'); showTool('chat')" class="px-7 py-3.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-[#0B2545] font-bold text-sm shadow-xl hover:shadow-amber-500/20 transform hover:-translate-y-0.5 transition flex items-center space-x-2">
+            <i data-lucide="message-square" class="w-4 h-4"></i>
+            <span>Start Chatting</span>
+          </button>
+          <button onclick="openErpPortal()" class="px-7 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-sm shadow-xl transition flex items-center space-x-2">
+            <i data-lucide="shield-check" class="w-4 h-4 text-amber-300"></i>
+            <span>ABES SIMS ERP Portal</span>
+          </button>
+          <button onclick="switchView('dashboard'); showTool('admissions')" class="px-7 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-bold text-sm shadow-lg transition flex items-center space-x-2">
+            <i data-lucide="user-check" class="w-4 h-4"></i>
+            <span>Admission Guide 2026</span>
+          </button>
+          <button onclick="document.getElementById('campusPhotosSection').scrollIntoView({behavior: 'smooth'})" class="px-7 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-sm backdrop-blur-md border border-white/20 transition flex items-center space-x-2">
+            <i data-lucide="image" class="w-4 h-4"></i>
+            <span>Campus Photo Tour</span>
+          </button>
+        </div>
+
+        <!-- Metric Badges -->
+        <div class="mt-14 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto border-t border-white/10 pt-8">
+          <div class="p-3 bg-white/5 rounded-xl border border-white/10">
+            <div class="text-2xl font-black text-amber-300">₹45.0 LPA</div>
+            <div class="text-xs text-slate-300">Highest CRC Package</div>
+          </div>
+          <div class="p-3 bg-white/5 rounded-xl border border-white/10">
+            <div class="text-2xl font-black text-amber-300">1,870+</div>
+            <div class="text-xs text-slate-300">Placement Offers</div>
+          </div>
+          <div class="p-3 bg-white/5 rounded-xl border border-white/10">
+            <div class="text-2xl font-black text-amber-300">1,20,000+</div>
+            <div class="text-xs text-slate-300">Central Library Books</div>
+          </div>
+          <div class="p-3 bg-white/5 rounded-xl border border-white/10">
+            <div class="text-2xl font-black text-amber-300">800+ Seats</div>
+            <div class="text-xs text-slate-300">Radhakrishnan Auditorium</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Campus Life & Photos Gallery Section -->
+    <section id="campusPhotosSection" class="py-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+      <div class="text-center mb-10">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">Campus Tour & Visual Experience</h2>
+        <p class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white mt-1">
+          Explore ABES Engineering College Campus & Facilities
+        </p>
+        <p class="text-xs text-slate-500 max-w-xl mx-auto mt-2">
+          From our acoustic Sarvepalli Radhakrishnan Auditorium to the Dr. A.P.J. Abdul Kalam Central Library, floodlit sports complex, and vibrant food courts.
+        </p>
+      </div>
+
+      <div id="landingPhotosGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Dynamic Photo Cards populate here -->
+      </div>
+    </section>
+
+    <!-- Features Showcase Grid -->
+    <section id="featuresSection" class="py-12 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto border-t border-slate-200 dark:border-slate-800">
+      <div class="text-center mb-10">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">Integrated Academic Tools</h2>
+        <p class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white mt-1">
+          Comprehensive Support at Every Step
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- Card 1: Admissions -->
+        <div onclick="switchView('dashboard'); showTool('admissions')" class="group p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-amber-400 transition cursor-pointer">
+          <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-3">
+            <i data-lucide="user-check" class="w-5 h-5"></i>
+          </div>
+          <h3 class="text-base font-bold text-slate-900 dark:text-white">Admission Process</h3>
+          <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">UPTAC counseling, JEE Main cutoffs, eligibility & direct admission.</p>
+        </div>
+
+        <!-- Card 2: Faculty Directory -->
+        <div onclick="switchView('dashboard'); showTool('faculty')" class="group p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-amber-400 transition cursor-pointer">
+          <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-3">
+            <i data-lucide="users" class="w-5 h-5"></i>
+          </div>
+          <h3 class="text-base font-bold text-slate-900 dark:text-white">Faculty & HODs</h3>
+          <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">Directory of senior professors, qualifications, experience & subjects.</p>
+        </div>
+
+        <!-- Card 3: CRC Placements -->
+        <div onclick="switchView('dashboard'); showTool('placements')" class="group p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-amber-400 transition cursor-pointer">
+          <div class="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-3">
+            <i data-lucide="briefcase" class="w-5 h-5"></i>
+          </div>
+          <h3 class="text-base font-bold text-slate-900 dark:text-white">CRC Placements</h3>
+          <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">Highest package ₹45 LPA, marquee recruiters, and CRT training.</p>
+        </div>
+
+        <!-- Card 4: Library & Facilities -->
+        <div onclick="switchView('dashboard'); showTool('campus-facilities')" class="group p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-amber-400 transition cursor-pointer">
+          <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-3">
+            <i data-lucide="book-open" class="w-5 h-5"></i>
+          </div>
+          <h3 class="text-base font-bold text-slate-900 dark:text-white">Library, Mess & Sports</h3>
+          <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">Book bank scheme, food courts, hostel mess menu & sports complex.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Interactive FAQ Section -->
+    <section class="py-12 bg-slate-100 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6">
+        <h3 class="text-xl font-bold text-center text-slate-900 dark:text-white mb-6">Frequently Asked Questions</h3>
+        <div class="space-y-3" id="landingFaqList">
+          <!-- Dynamic FAQ items rendered here -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-[#0B2545] text-slate-400 text-xs py-8 px-4 border-t border-white/10 text-center">
+      <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div>
+          <span class="text-white font-semibold">Studentsupport_botProject</span> • ABES Engineering College (AKTU Code: 032)
+        </div>
+        <div class="flex items-center space-x-4">
+          <a href="https://www.abes.ac.in" target="_blank" class="hover:text-white transition">Official Website</a>
+          <span>•</span>
+          <a href="https://erp.abes.ac.in" target="_blank" class="hover:text-white transition">ERP SIMS</a>
+          <span>•</span>
+          <a href="/docs" target="_blank" class="hover:text-white transition">FastAPI Swagger</a>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+
+  <!-- ========================================================================= -->
+  <!-- 3. VIEW B: STUDENT DASHBOARD & ACADEMIC WORKSPACE                         -->
+  <!-- ========================================================================= -->
+  <div id="dashboardView" class="hidden flex-1 flex overflow-hidden">
+    
+    <!-- Sidebar Navigation -->
+    <aside id="sidebarNav" class="w-64 bg-slate-900 text-slate-300 flex-shrink-0 flex flex-col border-r border-slate-800 transition-all duration-300 z-20">
+      
+      <!-- New Chat Button -->
+      <div class="p-3 border-b border-slate-800">
+        <button onclick="startNewChat()" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-[#0B2545] font-bold text-xs flex items-center justify-center space-x-2 shadow-md transition">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i>
+          <span>New AI Conversation</span>
+        </button>
+      </div>
+
+      <!-- Navigation Links -->
+      <div class="flex-1 overflow-y-auto p-3 space-y-1 text-xs">
+        <div class="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">Core Academic Desk</div>
+        
+        <button onclick="showTool('chat')" id="nav-chat" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-left bg-slate-800 text-white font-medium hover:bg-slate-800 transition">
+          <i data-lucide="message-square" class="w-4 h-4 text-amber-400"></i>
+          <span>AI Chat Assistant</span>
+        </button>
+
+        <button onclick="openErpPortal()" id="nav-erp" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-left hover:bg-slate-800/60 hover:text-white transition group border border-amber-500/20 bg-amber-500/5">
+          <i data-lucide="shield-check" class="w-4 h-4 text-amber-400"></i>
+          <span class="flex-1 font-semibold text-slate-200">ABES SIMS ERP</span>
+          <span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-300 font-mono">Secure</span>
+        </button>
+
+        <button onclick="showTool('admissions')" id="nav-admissions" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-left hover:bg-slate-800/60 hover:text-white transition">
+          <i data-lucide="user-plus" class="w-4 h-4 text-emerald-400"></i>
+          <span>Admissions & Eligibility</span>
+        </button>
+
+        <button onclick="showTool('planner')" id="nav-planner" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-left hover:bg-slate-800/60 hover:text-white transition">
+          <i data-lucide="calendar" class="w-4 h-4 text-cyan-400"></i>
+          <span>Study Planner</span>
+        </button>
+
+        <button onclick="showTool('summarize')" id="nav-summarize" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-left hover:bg-slate-800/60 hover:text-white transition">
+          <i data-lucide="file-text" class="w-4 h-4 text-emerald-400"></i>
+          <span>Notes & Flashcards</span>
+        </button>
+
+        <button onclick="showTool('quiz')" id="nav-quiz" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-left hover:bg-slate-800/60 hover:text-white transition">
+          <i data-lucide="help-circle" class="w-4 h-4 text-purple-400"></i>
+          <span>Quiz Generator</span>
+        </button>
+
+        <button onclick="showTool('assignment')" id="nav-assignment" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-left hover:bg-slate-800/60 hover:text-white transition">
+          <i data-lucide="check-square" class="w-4 h-4 text-indigo-400"></i>
+          <span>Assignment Assistant</span>
+        </button>
+
+        <button onclick="showTool('exam-prep')" id="nav-exam-prep" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-left hover:bg-slate-800/60 hover:text-white transition">
+          <i data-lucide="award" class="w-4 h-4 text-amber-400"></i>
+          <span>Exam Preparation</span>
+        </button>
+
+        <button onclick="showTool('fee-calculator')" id="nav-fee-calculator" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-left hover:bg-slate-800/60 hover:text-white transition">
+          <i data-lucide="calculator" class="w-4 h-4 text-rose-400"></i>
+          <span>Fee & Expense Calculator</span>
+        </button>
+
+        <div class="pt-3 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">Campus, Faculty & Facilities</div>
+
+        <button onclick="showTool('faculty')" id="nav-faculty" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-left hover:bg-slate-800/60 hover:text-white transition">
+          <i data-lucide="users" class="w-4 h-4 text-blue-400"></i>
+          <span>Faculty Directory & HODs</span>
+        </button>
+
+        <button onclick="showTool('placements')" id="nav-placements" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-left hover:bg-slate-800/60 hover:text-white transition">
+          <i data-lucide="briefcase" class="w-4 h-4 text-purple-400"></i>
+          <span>CRC Placements & Training</span>
+        </button>
+
+        <button onclick="showTool('campus-facilities')" id="nav-campus-facilities" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-left hover:bg-slate-800/60 hover:text-white transition">
+          <i data-lucide="image" class="w-4 h-4 text-amber-400"></i>
+          <span>Library, Mess & Photos</span>
+        </button>
+
+        <button onclick="showTool('campus-hub')" id="nav-campus-hub" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-left hover:bg-slate-800/60 hover:text-white transition">
+          <i data-lucide="landmark" class="w-4 h-4 text-rose-400"></i>
+          <span>Leadership & Anti-Ragging</span>
+        </button>
+
+        <button onclick="showTool('admin-console')" id="nav-admin-console" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-left hover:bg-slate-800/60 hover:text-white transition">
+          <i data-lucide="shield-check" class="w-4 h-4 text-yellow-400"></i>
+          <span>Admin & Security Logs</span>
+        </button>
+      </div>
+
+      <!-- User Information Card in Sidebar (Universal for all students) -->
+      <div class="p-3 border-t border-slate-800 bg-slate-950/60 flex items-center justify-between">
+        <div class="flex items-center space-x-2 cursor-pointer" onclick="handleProfileClick()">
+          <div id="sidebarUserAvatar" class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 text-amber-400 font-bold text-xs flex items-center justify-center">
+            <i data-lucide="user" class="w-4 h-4"></i>
+          </div>
+          <div class="text-[11px] leading-tight">
+            <div id="sidebarUserName" class="text-white font-semibold">Guest Student</div>
+            <div id="sidebarUserSub" class="text-slate-400">ABES Student Portal</div>
+          </div>
+        </div>
+        <button id="sidebarAuthBtn" onclick="handleProfileClick()" class="px-2 py-1 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-[10px] font-semibold border border-amber-500/30 transition flex items-center space-x-1">
+          <i data-lucide="lock" class="w-3 h-3"></i>
+          <span id="sidebarAuthBtnText">ERP Login</span>
+        </button>
+      </div>
+
+    </aside>
+
+    <!-- Main Workspace Area -->
+    <main class="flex-1 flex flex-col bg-white dark:bg-slate-950 overflow-hidden relative">
+      
+      <!-- ========================================================================= -->
+      <!-- TOOL 1: AI CHAT DESK                                                     -->
+      <!-- ========================================================================= -->
+      <section id="pane-chat" class="tool-pane flex-1 flex flex-col h-full overflow-hidden">
+        
+        <!-- Chat Message Scroll Area -->
+        <div id="chatMessages" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 max-w-4xl mx-auto w-full">
+          <!-- Initial Welcome Message from Bot -->
+          <div class="flex items-start space-x-3">
+            <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-400 to-amber-600 text-[#0B2545] font-black text-sm flex items-center justify-center flex-shrink-0 shadow">
+              A
+            </div>
+            <div class="flex-1 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 text-xs sm:text-sm text-slate-800 dark:text-slate-200 shadow-sm">
+              <div class="font-bold text-xs text-amber-600 dark:text-amber-400 mb-1 flex items-center justify-between">
+                <span>Studentsupport_botProject (ABES EC Student AI Desk)</span>
+                <span class="text-[10px] text-slate-400 font-normal">Active Session</span>
+              </div>
+              <p id="chatInitialGreeting">
+                Welcome to <strong>Studentsupport_botProject</strong> — the official AI Student Desk for ABES Engineering College! 🎓 How can I assist with your coursework, syllabus, admissions, faculty directory, library, or fee schedules today?
+              </p>
+              <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                <button onclick="fillPrompt('What is the admission process for B.Tech at ABES EC?')" class="p-2 text-left rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-amber-400 text-slate-700 dark:text-slate-300 transition">
+                  🎓 <strong>Admission process & eligibility</strong>
+                </button>
+                <button onclick="fillPrompt('Who is the Director and Controller of Examination?')" class="p-2 text-left rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-amber-400 text-slate-700 dark:text-slate-300 transition">
+                  🏛️ <strong>Director & COE details</strong>
+                </button>
+                <button onclick="fillPrompt('Tell me about CRC placements and highest package')" class="p-2 text-left rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-amber-400 text-slate-700 dark:text-slate-300 transition">
+                  💼 <strong>Placements, CTC & Recruiters</strong>
+                </button>
+                <button onclick="fillPrompt('What is the last date of fee submission?')" class="p-2 text-left rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-amber-400 text-slate-700 dark:text-slate-300 transition">
+                  💳 <strong>Fee deadlines & PNB Account</strong>
+                </button>
+                <button onclick="fillPrompt('Central Library timings and book bank scheme')" class="p-2 text-left rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-amber-400 text-slate-700 dark:text-slate-300 transition">
+                  📚 <strong>Central Library & Free Book Bank</strong>
+                </button>
+                <button onclick="fillPrompt('Canteens food court and Nescafe menu')" class="p-2 text-left rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-amber-400 text-slate-700 dark:text-slate-300 transition">
+                  🍕 <strong>Campus Canteens & Food Outlets</strong>
+                </button>
+                <button onclick="fillPrompt('Hostel mess schedule and Sunday special')" class="p-2 text-left rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-amber-400 text-slate-700 dark:text-slate-300 transition">
+                  🏠 <strong>Hostel Mess & Curfew Timings</strong>
+                </button>
+                <button onclick="fillPrompt('Anti-ragging helpline and Chief Proctor')" class="p-2 text-left rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-amber-400 text-slate-700 dark:text-slate-300 transition">
+                  🛡️ <strong>Anti-Ragging Squad & Chief Proctor</strong>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div id="typingIndicator" class="hidden px-6 py-2 max-w-4xl mx-auto w-full flex items-center space-x-2 text-xs text-slate-500">
+          <div class="w-2 h-2 rounded-full bg-amber-400 animate-bounce"></div>
+          <div class="w-2 h-2 rounded-full bg-amber-400 animate-bounce" style="animation-delay: 0.2s"></div>
+          <div class="w-2 h-2 rounded-full bg-amber-400 animate-bounce" style="animation-delay: 0.4s"></div>
+          <span class="ml-1 text-[11px] font-medium">Studentsupport_bot is compiling focused response...</span>
+        </div>
+
+        <!-- Chat Input Bar -->
+        <div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 backdrop-blur-md">
+          <div class="max-w-4xl mx-auto flex items-center space-x-2 bg-slate-100 dark:bg-slate-800/90 rounded-2xl px-3 py-2 border border-slate-300 dark:border-slate-700 focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/20 transition">
+            
+            <!-- Attachment Button -->
+            <button onclick="triggerNoteUpload()" class="p-1.5 rounded-lg text-slate-500 hover:text-amber-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition" title="Attach lecture notes or PDF">
+              <i data-lucide="paperclip" class="w-4 h-4"></i>
+            </button>
+
+            <!-- Voice Speech-to-Text Button -->
+            <button id="voiceBtn" onclick="toggleVoiceInput()" class="p-1.5 rounded-lg text-slate-500 hover:text-amber-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition" title="Voice typing (Web Speech API)">
+              <i data-lucide="mic" class="w-4 h-4"></i>
+            </button>
+
+            <!-- Input Field -->
+            <input id="chatInput" type="text" placeholder="Ask about admissions, director, faculty, placements, library, fees, canteens..." class="flex-1 bg-transparent border-0 focus:outline-none text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400" onkeydown="if(event.key === 'Enter') handleSendChat()">
+
+            <!-- Send Button -->
+            <button onclick="handleSendChat()" class="p-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-[#0B2545] font-bold transition shadow">
+              <i data-lucide="send" class="w-4 h-4"></i>
+            </button>
+          </div>
+          <div class="text-[10px] text-center text-slate-400 mt-1.5">
+            Studentsupport_bot provides verified institutional details for ABES Engineering College (AKTU Code 032).
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- TOOL: ADMISSIONS & ELIGIBILITY GUIDE                                     -->
+      <!-- ========================================================================= -->
+      <section id="pane-admissions" class="tool-pane hidden flex-1 overflow-y-auto p-4 sm:p-6 max-w-4xl mx-auto w-full">
+        <div class="mb-6">
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+            <i data-lucide="user-plus" class="w-5 h-5 text-emerald-500"></i>
+            <span>B.Tech / MCA / MBA Admission Guide & Eligibility</span>
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Complete counseling guidelines, eligibility criteria, required documents, and direct application.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <!-- Counseling Card -->
+          <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 mb-2">
+              85% Total Seats
+            </div>
+            <h3 class="text-base font-bold text-slate-900 dark:text-white">UPTAC Counseling Route</h3>
+            <p class="text-xs text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">
+              Conducted by AKTU through UPTAC based strictly on <strong>JEE Main Rank</strong>. During choice filling, select <strong>ABES Engineering College, Ghaziabad (Code: 032)</strong>.
+            </p>
+            <a href="https://uptac.admissions.nic.in" target="_blank" class="mt-4 inline-flex items-center space-x-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+              <span>Visit UPTAC Portal</span>
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            </a>
+          </div>
+
+          <!-- Direct Admission Card -->
+          <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 mb-2">
+              15% Management Quota
+            </div>
+            <h3 class="text-base font-bold text-slate-900 dark:text-white">Direct / Management Quota</h3>
+            <p class="text-xs text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">
+              Based on 10+2 merit (min 45% aggregate in Physics, Math & Chemistry/CS). Involves college technical screening and personal interview.
+            </p>
+            <a href="https://erp.abes.ac.in/onlineregistration/" target="_blank" class="mt-4 inline-flex items-center space-x-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline">
+              <span>Apply Online on ABES Portal</span>
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Required Documents Checklist -->
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-xs space-y-3 mb-6">
+          <h3 class="font-bold text-sm text-slate-900 dark:text-white flex items-center space-x-2">
+            <i data-lucide="file-check-2" class="w-4 h-4 text-amber-500"></i>
+            <span>Required Documents for Physical Campus Reporting</span>
+          </h3>
+          <div id="admissionsDocList" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-700 dark:text-slate-300">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+        <!-- Admission Cell Contact Banner -->
+        <div class="p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/30 flex justify-between items-center text-xs">
+          <div>
+            <div class="font-bold text-emerald-800 dark:text-emerald-300 text-sm">Admission Helpdesk (Bhabha Block Room 002)</div>
+            <div class="text-slate-500">Open Mon-Sat: 9:00 AM - 5:00 PM | Phone: +91-120-7135111 / 7135112 | Email: admissions@abes.ac.in</div>
+          </div>
+          <button onclick="fillPrompt('What are the fee payment options for new admissions?')" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-semibold text-xs shadow hover:bg-emerald-500 transition">
+            Fee Details
+          </button>
+        </div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- TOOL: FACULTY & HOD DIRECTORY                                            -->
+      <!-- ========================================================================= -->
+      <section id="pane-faculty" class="tool-pane hidden flex-1 overflow-y-auto p-4 sm:p-6 max-w-4xl mx-auto w-full">
+        <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+              <i data-lucide="users" class="w-5 h-5 text-blue-500"></i>
+              <span>Faculty Directory & Department Leadership</span>
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Distinguished professors, HODs, qualifications, teaching domains, and research experience.</p>
+          </div>
+          <div class="flex items-center space-x-1.5 text-xs">
+            <button onclick="filterFacultyByDept('all')" class="px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-semibold border border-blue-200 dark:border-blue-800">All</button>
+            <button onclick="filterFacultyByDept('CSE')" class="px-2.5 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400">CSE</button>
+            <button onclick="filterFacultyByDept('AIML')" class="px-2.5 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400">AI/ML</button>
+            <button onclick="filterFacultyByDept('IT')" class="px-2.5 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400">IT</button>
+            <button onclick="filterFacultyByDept('ECE')" class="px-2.5 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400">ECE</button>
+          </div>
+        </div>
+
+        <div id="facultyCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Dynamically populated faculty cards -->
+        </div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- TOOL: CRC PLACEMENTS & TRAINING                                          -->
+      <!-- ========================================================================= -->
+      <section id="pane-placements" class="tool-pane hidden flex-1 overflow-y-auto p-4 sm:p-6 max-w-4xl mx-auto w-full">
+        <div class="mb-6">
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+            <i data-lucide="briefcase" class="w-5 h-5 text-purple-500"></i>
+            <span>Corporate Resource Centre (CRC) & Campus Placements</span>
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Official placement records, marquee recruiters, packages, and comprehensive CRT training modules.</p>
+        </div>
+
+        <!-- Placement Metric Cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+          <div class="p-4 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-500/30 text-center">
+            <div class="text-xs text-purple-700 dark:text-purple-300 font-medium">Highest CTC</div>
+            <div class="text-2xl font-black text-purple-800 dark:text-purple-200 mt-1">₹45.0 LPA</div>
+            <div class="text-[10px] text-slate-500 mt-0.5">Amazon & Global Tech</div>
+          </div>
+          <div class="p-4 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-500/30 text-center">
+            <div class="text-xs text-blue-700 dark:text-blue-300 font-medium">Average CTC</div>
+            <div class="text-2xl font-black text-blue-800 dark:text-blue-200 mt-1">₹5.27 LPA</div>
+            <div class="text-[10px] text-slate-500 mt-0.5">Median: ₹4.50 LPA</div>
+          </div>
+          <div class="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-500/30 text-center">
+            <div class="text-xs text-emerald-700 dark:text-emerald-300 font-medium">Total Offers</div>
+            <div class="text-2xl font-black text-emerald-800 dark:text-emerald-200 mt-1">1,870+</div>
+            <div class="text-[10px] text-slate-500 mt-0.5">500+ Companies</div>
+          </div>
+          <div class="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-500/30 text-center">
+            <div class="text-xs text-amber-700 dark:text-amber-300 font-medium">Placement Rate</div>
+            <div class="text-2xl font-black text-amber-800 dark:text-amber-200 mt-1">80.06%</div>
+            <div class="text-[10px] text-slate-500 mt-0.5">Eligible B.Tech Students</div>
+          </div>
+        </div>
+
+        <!-- How Faculty & CRC Prepares Students -->
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-xs space-y-3 mb-6">
+          <h3 class="font-bold text-sm text-slate-900 dark:text-white flex items-center space-x-2">
+            <i data-lucide="sparkles" class="w-4 h-4 text-purple-500"></i>
+            <span>How Faculty & CRC Train and Encourage Students</span>
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-slate-700 dark:text-slate-300">
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+              <strong class="text-purple-600 dark:text-purple-400 block mb-1">Campus Recruitment Training (CRT):</strong>
+              200+ hours of Quantitative Aptitude, Logical Reasoning, and Verbal Communication to clear Day-1 screening exams.
+            </div>
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+              <strong class="text-purple-600 dark:text-purple-400 block mb-1">Career Planning & Development (CPD):</strong>
+              Credit curriculum from 2nd year covering corporate etiquette, GDs, resume workshops, and tech presentation skills.
+            </div>
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+              <strong class="text-purple-600 dark:text-purple-400 block mb-1">Advanced Technical Bootcamps:</strong>
+              Rigorous coding camps in C++, Java, Python, and DSA with daily tracking on LeetCode and CodeChef.
+            </div>
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+              <strong class="text-purple-600 dark:text-purple-400 block mb-1">1-on-1 Faculty Mentorship:</strong>
+              Each student has a dedicated faculty guide tracking project repositories, GitHub profiles, and running mock interviews.
+            </div>
+          </div>
+        </div>
+
+        <!-- Marquee Recruiters Showcase -->
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-xs space-y-3">
+          <h3 class="font-bold text-sm text-slate-900 dark:text-white">Marquee Visiting Companies</h3>
+          <div id="marqueeRecruitersTable" class="overflow-x-auto">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- TOOL: CAMPUS FACILITIES, LIBRARY, MESS & PHOTOS                         -->
+      <!-- ========================================================================= -->
+      <section id="pane-campus-facilities" class="tool-pane hidden flex-1 overflow-y-auto p-4 sm:p-6 max-w-4xl mx-auto w-full">
+        <div class="mb-6">
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+            <i data-lucide="image" class="w-5 h-5 text-amber-500"></i>
+            <span>Central Library, Hostels, Canteens, Sports & Campus Photos</span>
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Complete visual and operational guide to all campus infrastructure.</p>
+        </div>
+
+        <!-- Facilities Tabs Buttons -->
+        <div class="flex flex-wrap gap-2 mb-6 text-xs">
+          <button onclick="showFacilityTab('blocks')" id="ftab-blocks" class="px-3.5 py-1.5 rounded-xl bg-amber-500 text-slate-900 font-bold flex items-center space-x-1.5 shadow-sm">
+            <i data-lucide="building-2" class="w-3.5 h-3.5"></i>
+            <span>Campus Building Blocks</span>
+          </button>
+          <button onclick="showFacilityTab('sports')" id="ftab-sports" class="px-3.5 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold flex items-center space-x-1.5">
+            <i data-lucide="trophy" class="w-3.5 h-3.5 text-amber-500"></i>
+            <span>Sports Grounds & Stadium</span>
+          </button>
+          <button onclick="showFacilityTab('library')" id="ftab-library" class="px-3.5 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold flex items-center space-x-1.5">
+            <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+            <span>Central Library</span>
+          </button>
+          <button onclick="showFacilityTab('auditorium')" id="ftab-auditorium" class="px-3.5 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold flex items-center space-x-1.5">
+            <i data-lucide="presentation" class="w-3.5 h-3.5"></i>
+            <span>Auditorium</span>
+          </button>
+          <button onclick="showFacilityTab('hostels')" id="ftab-hostels" class="px-3.5 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold flex items-center space-x-1.5">
+            <i data-lucide="home" class="w-3.5 h-3.5"></i>
+            <span>Hostels & 4-Meal Mess</span>
+          </button>
+          <button onclick="showFacilityTab('canteens')" id="ftab-canteens" class="px-3.5 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold flex items-center space-x-1.5">
+            <i data-lucide="coffee" class="w-3.5 h-3.5"></i>
+            <span>Canteens & Dining</span>
+          </button>
+          <button onclick="showFacilityTab('clubs')" id="ftab-clubs" class="px-3.5 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold flex items-center space-x-1.5">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+            <span>Clubs & Festivals</span>
+          </button>
+        </div>
+
+        <!-- Facility Tab Content Container -->
+        <div id="facilityContentContainer">
+          <!-- Dynamic facility view loads here -->
+        </div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- TOOL 2: STUDY PLANNER (INTERACTIVE FORM & SCHEDULE)                      -->
+      <!-- ========================================================================= -->
+      <section id="pane-planner" class="tool-pane hidden flex-1 overflow-y-auto p-4 sm:p-6 max-w-4xl mx-auto w-full">
+        <div class="mb-6">
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+            <i data-lucide="calendar" class="w-5 h-5 text-cyan-500"></i>
+            <span>AI Study Planner</span>
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Generate a custom day-by-day revision schedule for upcoming AKTU sessional or semester exams.</p>
+        </div>
+
+        <!-- Study Plan Form -->
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Subjects to Revise (comma separated)</label>
+            <input id="plannerSubjects" type="text" value="Data Structures & Algorithms, Operating Systems, Computer Networks, DBMS" class="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:outline-none focus:border-cyan-500">
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+            <div>
+              <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Target Exam Date</label>
+              <input id="plannerExamDate" type="date" value="2026-05-15" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Daily Study Hours</label>
+              <input id="plannerHours" type="number" step="0.5" min="1" max="12" value="3.5" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Goal Target Score</label>
+              <input id="plannerGoal" type="text" value="85%+ in Sessional & Semester" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
+            </div>
+          </div>
+          <button onclick="submitStudyPlanner()" class="w-full py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-xs transition shadow flex items-center justify-center space-x-2">
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+            <span>Generate Optimized Schedule</span>
+          </button>
+        </div>
+
+        <div id="plannerResults" class="mt-6 space-y-3"></div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- TOOL 3: NOTES SUMMARIZER (FORM & 3D FLASHCARDS)                          -->
+      <!-- ========================================================================= -->
+      <section id="pane-summarize" class="tool-pane hidden flex-1 overflow-y-auto p-4 sm:p-6 max-w-4xl mx-auto w-full">
+        <div class="mb-6">
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+            <i data-lucide="file-text" class="w-5 h-5 text-emerald-500"></i>
+            <span>Lecture Notes Summarizer & 3D Flashcards</span>
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Condense engineering lecture notes into executive takeaways, core definitions, and interactive flashcards.</p>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Lecture Topic / Document Name</label>
+            <input id="summaryTitle" type="text" value="Operating Systems — Virtual Memory & Paging" class="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:outline-none focus:border-emerald-500">
+          </div>
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Paste Lecture Content or Notes</label>
+              <button onclick="loadSampleNotes()" class="text-[11px] text-emerald-600 dark:text-emerald-400 hover:underline">Load Sample AKTU Notes</button>
+            </div>
+            <textarea id="summaryContent" rows="5" class="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:outline-none focus:border-emerald-500" placeholder="Paste your lecture notes, textbook paragraphs, or syllabus units here..."></textarea>
+          </div>
+          <button onclick="submitSummarizer()" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition shadow flex items-center justify-center space-x-2">
+            <i data-lucide="file-check" class="w-4 h-4"></i>
+            <span>Extract Key Points & Generate Flashcards</span>
+          </button>
+        </div>
+
+        <div id="summarizerResults" class="mt-6 space-y-4"></div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- TOOL 4: QUIZ GENERATOR (INTERACTIVE MCQS & CONFETTI)                    -->
+      <!-- ========================================================================= -->
+      <section id="pane-quiz" class="tool-pane hidden flex-1 overflow-y-auto p-4 sm:p-6 max-w-4xl mx-auto w-full">
+        <div class="mb-6">
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+            <i data-lucide="help-circle" class="w-5 h-5 text-purple-500"></i>
+            <span>Interactive Practice Quiz</span>
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Test your retention with instant evaluation, explanatory rationales, and celebration confetti on completion.</p>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div>
+              <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Subject</label>
+              <select id="quizSubject" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
+                <option value="Data Structures & Algorithms">Data Structures & Algorithms</option>
+                <option value="Operating Systems">Operating Systems</option>
+                <option value="Computer Networks">Computer Networks</option>
+                <option value="Database Management Systems">Database Management Systems</option>
+                <option value="ABES Regulations & Attendance">ABES Regulations & Attendance</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Difficulty</label>
+              <select id="quizDifficulty" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
+                <option value="Medium">Medium (AKTU Sessional Standard)</option>
+                <option value="Hard">Hard (Gate / Technical Interview Standard)</option>
+                <option value="Easy">Easy (Conceptual Fundamentals)</option>
+              </select>
+            </div>
+          </div>
+          <button onclick="submitGenerateQuiz()" class="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs transition shadow flex items-center justify-center space-x-2">
+            <i data-lucide="play-circle" class="w-4 h-4"></i>
+            <span>Generate Practice Questions</span>
+          </button>
+        </div>
+
+        <div id="quizContainer" class="mt-6 space-y-4"></div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- TOOL 5: ASSIGNMENT ASSISTANT (STEP-BY-STEP GUIDANCE)                     -->
+      <!-- ========================================================================= -->
+      <section id="pane-assignment" class="tool-pane hidden flex-1 overflow-y-auto p-4 sm:p-6 max-w-4xl mx-auto w-full">
+        <div class="mb-6">
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+            <i data-lucide="check-square" class="w-5 h-5 text-indigo-500"></i>
+            <span>Assignment Assistant (Anti-Plagiarism Step Solver)</span>
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Breaks complex engineering assignment questions into pedagogical steps, invariants, and theorems.</p>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Subject</label>
+            <input id="assignSubject" type="text" value="Design & Analysis of Algorithms" class="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Assignment Problem Statement</label>
+            <textarea id="assignQuestion" rows="4" class="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700" placeholder="Paste the problem statement here..."></textarea>
+          </div>
+          <button onclick="submitAssignmentHelper()" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition shadow flex items-center justify-center space-x-2">
+            <i data-lucide="git-branch" class="w-4 h-4"></i>
+            <span>Deconstruct into Pedagogical Steps</span>
+          </button>
+        </div>
+
+        <div id="assignmentResults" class="mt-6 space-y-3"></div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- TOOL 6: EXAM PREPARATION (QUANTUM & DERIVATIONS)                         -->
+      <!-- ========================================================================= -->
+      <section id="pane-exam-prep" class="tool-pane hidden flex-1 overflow-y-auto p-4 sm:p-6 max-w-4xl mx-auto w-full">
+        <div class="mb-6">
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+            <i data-lucide="award" class="w-5 h-5 text-amber-500"></i>
+            <span>Exam Preparation & AKTU Quantum Insights</span>
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">High-yield question analysis, repeating derivations, and 10-marker predictions.</p>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div>
+              <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Subject</label>
+              <input id="examPrepSubject" type="text" value="Compiler Design / Theory of Computation" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Exam Type</label>
+              <select id="examPrepType" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
+                <option value="sessional">Sessional Exam (ST-1 / ST-2)</option>
+                <option value="pue">Pre-University Exam (PUE)</option>
+                <option value="aktu_endsem">AKTU End-Semester University Examination</option>
+              </select>
+            </div>
+          </div>
+          <button onclick="submitExamPrep()" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold text-xs transition shadow flex items-center justify-center space-x-2">
+            <i data-lucide="zap" class="w-4 h-4"></i>
+            <span>Generate Revision Packet</span>
+          </button>
+        </div>
+
+        <div id="examPrepResults" class="mt-6 space-y-3"></div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- TOOL 7: FEE CALCULATOR & PAYMENT CHANNELS                               -->
+      <!-- ========================================================================= -->
+      <section id="pane-fee-calculator" class="tool-pane hidden flex-1 overflow-y-auto p-4 sm:p-6 max-w-4xl mx-auto w-full">
+        <div class="mb-6">
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+            <i data-lucide="calculator" class="w-5 h-5 text-rose-500"></i>
+            <span>ABES EC Fee & Budget Calculator</span>
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Calculate tuition, caution deposit, hostel room, and bus transport with verified payment instructions.</p>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+            <div>
+              <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Course</label>
+              <select id="feeCourse" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700" onchange="calculateFeesLive()">
+                <option value="B.Tech">B.Tech (All Branches)</option>
+                <option value="MCA">MCA</option>
+                <option value="MBA">MBA</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Academic Year</label>
+              <select id="feeYear" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700" onchange="calculateFeesLive()">
+                <option value="1">1st Year (New Admission)</option>
+                <option value="2">2nd Year</option>
+                <option value="3" selected>3rd Year (Current)</option>
+                <option value="4">4th Year</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Hostel Room</label>
+              <select id="feeHostel" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700" onchange="calculateFeesLive()">
+                <option value="none">Day Scholar (No Hostel)</option>
+                <option value="2-seater-ac">2-Seater AC (₹1,30,000)</option>
+                <option value="2-seater-aircooled">2-Seater Air-Cooled (₹1,10,000)</option>
+                <option value="3-seater-aircooled">3-Seater Air-Cooled (₹1,00,000)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Bus Transport</label>
+              <select id="feeBus" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700" onchange="calculateFeesLive()">
+                <option value="none">Self Commute (No Bus)</option>
+                <option value="ghaziabad">Ghaziabad Local (₹26,000)</option>
+                <option value="noida">Noida / Gr. Noida (₹32,000)</option>
+                <option value="delhi">Delhi Routes (₹34,000)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div id="feeResults" class="mt-6 space-y-4"></div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- TOOL 8: CAMPUS HUB, LEADERSHIP & ANTI-RAGGING                            -->
+      <!-- ========================================================================= -->
+      <section id="pane-campus-hub" class="tool-pane hidden flex-1 overflow-y-auto p-4 sm:p-6 max-w-4xl mx-auto w-full">
+        <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+              <i data-lucide="landmark" class="w-5 h-5 text-rose-500"></i>
+              <span>College Leadership & Anti-Ragging Governance</span>
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Institutional directorate, examination controller, chief proctor, and campus notices.</p>
+          </div>
+          <div class="flex items-center space-x-1.5 text-xs">
+            <button onclick="filterNotices('all')" class="px-2.5 py-1 rounded-lg bg-rose-50 dark:bg-rose-950 text-rose-600 dark:text-rose-400 font-semibold border border-rose-200 dark:border-rose-800">All Notices</button>
+            <button onclick="filterNotices('Examinations')" class="px-2.5 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400">Exams</button>
+            <button onclick="filterNotices('Placements')" class="px-2.5 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400">Placements</button>
+          </div>
+        </div>
+
+        <!-- Leadership Cards Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+          <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm text-xs">
+            <div class="text-[10px] uppercase font-bold text-amber-500">Director of ABES EC</div>
+            <h4 class="text-base font-bold text-slate-900 dark:text-white mt-0.5">Prof. (Dr.) Devendra Kumar Sharma</h4>
+            <div class="text-slate-500">Ph.D. (Electronics), M.Tech • 26+ Years Exp</div>
+            <div class="mt-2 text-slate-600 dark:text-slate-400">Office: Directorate, Ramanujan Block | ✉️ director@abes.ac.in</div>
+          </div>
+          <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm text-xs">
+            <div class="text-[10px] uppercase font-bold text-blue-500">Controller of Examinations (COE)</div>
+            <h4 class="text-base font-bold text-slate-900 dark:text-white mt-0.5">Prof. (Dr.) Rajesh Kumar Tewari</h4>
+            <div class="text-slate-500">Ph.D. (Computer Science), M.Tech • 22+ Years Exp</div>
+            <div class="mt-2 text-slate-600 dark:text-slate-400">Office: Exam Cell, Ramanujan Block Rm 104 | ✉️ coe@abes.ac.in</div>
+          </div>
+          <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm text-xs">
+            <div class="text-[10px] uppercase font-bold text-rose-500">Chief Proctor & Anti-Ragging Head</div>
+            <h4 class="text-base font-bold text-slate-900 dark:text-white mt-0.5">Prof. (Dr.) Rati Ranjan Panda</h4>
+            <div class="text-slate-500">Ph.D., M.Tech • 24+ Years Exp</div>
+            <div class="mt-2 text-slate-600 dark:text-slate-400">Office: Aryabhatta Block Rm 004 | ✉️ proctor@abes.ac.in</div>
+          </div>
+          <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm text-xs">
+            <div class="text-[10px] uppercase font-bold text-emerald-500">Anti-Ragging 24x7 Helpline</div>
+            <h4 class="text-base font-bold text-slate-900 dark:text-white mt-0.5">National Toll-Free: 1800-180-5522</h4>
+            <div class="text-slate-500">Campus Emergency: 0120-7135112 | antiragging26@abes.ac.in</div>
+            <div class="mt-2 text-emerald-600 dark:text-emerald-400 font-semibold">Strict zero-tolerance policy across campus & hostels.</div>
+          </div>
+        </div>
+
+        <!-- Active Notices Board -->
+        <div class="mb-6">
+          <h3 class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-3 flex items-center space-x-1.5">
+            <i data-lucide="bell" class="w-4 h-4 text-amber-500"></i>
+            <span>Active Campus Circulars</span>
+          </h3>
+          <div id="noticesContainer" class="space-y-3"></div>
+        </div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- TOOL 9: ADMIN & SECURITY CONSOLE                                         -->
+      <!-- ========================================================================= -->
+      <section id="pane-admin-console" class="tool-pane hidden flex-1 overflow-y-auto p-4 sm:p-6 max-w-4xl mx-auto w-full">
+        <div class="mb-6">
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+            <i data-lucide="shield-check" class="w-5 h-5 text-yellow-500"></i>
+            <span>Institutional Governance & Security Ledger</span>
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Live operational telemetry, tamper-evident security audit logs, and notice publishing.</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="text-xs text-slate-500">Total Enrolled Students</div>
+            <div class="text-2xl font-black text-slate-900 dark:text-white mt-1">5,420</div>
+            <div class="text-[10px] text-emerald-500 font-semibold mt-1">Active across B.Tech / MCA / MBA</div>
+          </div>
+          <div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="text-xs text-slate-500">Active AI Inquiries Today</div>
+            <div class="text-2xl font-black text-amber-500 mt-1">3,410</div>
+            <div class="text-[10px] text-slate-400 mt-1">Top Query: Fee Deadlines & Admissions</div>
+          </div>
+          <div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="text-xs text-slate-500">Student Satisfaction</div>
+            <div class="text-2xl font-black text-blue-500 mt-1">98.4%</div>
+            <div class="text-[10px] text-emerald-500 font-semibold mt-1">+1.2% this semester</div>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3 mb-6">
+          <h3 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Publish New Notice (Real-Time)</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+            <input id="newNoticeTitle" type="text" placeholder="Notice Title..." class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
+            <input id="newNoticeDept" type="text" placeholder="Department (e.g. Exam Cell)" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
+            <input id="newNoticeCategory" type="text" placeholder="Category (e.g. Examinations)" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
+          </div>
+          <textarea id="newNoticeDetails" rows="2" placeholder="Circular content / instructions..." class="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700"></textarea>
+          <button onclick="publishNewNotice()" class="py-2 px-4 rounded-xl bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-bold text-xs transition shadow flex items-center space-x-1.5">
+            <i data-lucide="send" class="w-3.5 h-3.5"></i>
+            <span>Publish to College Notice Board</span>
+          </button>
+        </div>
+
+        <div>
+          <h3 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-2">Tamper-Evident Security Log Trail</h3>
+          <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-100 dark:bg-slate-800 text-slate-500 border-b border-slate-200 dark:border-slate-700">
+                <tr>
+                  <th class="p-2.5">Time</th>
+                  <th class="p-2.5">Event</th>
+                  <th class="p-2.5">Actor</th>
+                  <th class="p-2.5">Details</th>
+                </tr>
+              </thead>
+              <tbody id="auditLogsBody" class="divide-y divide-slate-100 dark:divide-slate-800 font-mono text-[11px]"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- TOOL 10: ABES SIMS ERP SECURE STUDENT PORTAL                              -->
+      <!-- ========================================================================= -->
+      <section id="pane-erp" class="tool-pane hidden flex-1 overflow-y-auto p-4 sm:p-6 max-w-4xl mx-auto w-full">
+        <!-- ERP Content Container: Dynamically rendered based on auth state -->
+        <div id="erpPaneContainer">
+          <!-- Populated by renderErpDashboard() -->
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+
+  <!-- ========================================================================= -->
+  <!-- 4. MODALS (STUDENT ERP IDENTITY CARD & PROFILE)                           -->
+  <!-- ========================================================================= -->
+  <div id="profileModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      
+      <!-- Card Header -->
+      <div class="bg-gradient-to-r from-[#0B2545] to-[#134074] p-4 text-white flex items-center justify-between">
+        <div class="flex items-center space-x-2.5">
+          <img src="/static/abes_logo.png" alt="ABES Logo" class="h-8 w-auto bg-white rounded p-0.5 shadow-sm" onerror="this.onerror=null; this.src='https://www.abes.ac.in/assets/Logo.png';">
+          <div>
+            <div class="text-xs font-bold">ABES Engineering College</div>
+            <div class="text-[10px] text-amber-300 font-mono">Student SIMS Identity Portal</div>
+          </div>
+        </div>
+        <button onclick="closeProfileModal()" class="text-slate-300 hover:text-white p-1">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Card Body (Dynamically populated: Guest vs Authenticated Student) -->
+      <div id="profileModalBody" class="p-5 space-y-4 text-xs">
+        <!-- Injected via renderProfileModal() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- SECURE ABES SIMS ERP LOGIN MODAL (CAPTCHA + ROLL/ADMISSION NO + PASSWORD) -->
+  <!-- ========================================================================= -->
+  <div id="erpLoginModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      
+      <!-- Modal Header -->
+      <div class="bg-gradient-to-r from-[#0B2545] via-[#134074] to-[#0B2545] p-4 text-white flex items-center justify-between border-b border-amber-400/30">
+        <div class="flex items-center space-x-3">
+          <img src="/static/abes_logo.png" alt="ABES EC" class="h-9 w-auto bg-white rounded-lg p-1 shadow" onerror="this.onerror=null; this.src='https://www.abes.ac.in/assets/Logo.png';">
+          <div>
+            <div class="text-sm font-bold flex items-center space-x-1.5">
+              <span>ABES SIMS ERP Login</span>
+              <span class="text-[9px] bg-amber-400 text-slate-950 font-bold px-1.5 py-0.2 rounded font-mono">AKTU 032</span>
+            </div>
+            <div class="text-[11px] text-slate-300">Secure Institutional Single Sign-On</div>
+          </div>
+        </div>
+        <button onclick="closeErpLoginModal()" class="text-slate-300 hover:text-white p-1 rounded-lg hover:bg-white/10 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Security Trust Bar -->
+      <div class="bg-slate-100 dark:bg-slate-800/80 px-4 py-1.5 border-b border-slate-200 dark:border-slate-700/60 flex items-center justify-between text-[10px] text-slate-600 dark:text-slate-400">
+        <span class="flex items-center space-x-1 text-emerald-600 dark:text-emerald-400 font-semibold">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+          <span>256-Bit SSL Encrypted Gateway</span>
+        </span>
+        <span class="font-mono text-slate-400">Tamper-Evident Ledger</span>
+      </div>
+
+      <!-- Login Form -->
+      <form onsubmit="submitErpLogin(event)" class="p-5 space-y-3.5 text-xs">
+        
+        <!-- Error Alert Container -->
+        <div id="erpLoginError" class="hidden p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs flex items-center space-x-2">
+          <i data-lucide="alert-triangle" class="w-4 h-4 flex-shrink-0"></i>
+          <span id="erpLoginErrorText">Invalid credentials</span>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
+            Student Roll Number / Admission Number
+          </label>
+          <div class="relative">
+            <input id="erpLoginIdentifier" type="text" required placeholder="e.g. 2100320100045, 2200320100112, or admin" class="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-400 text-xs font-mono">
+            <i data-lucide="user" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
+          </div>
+          <p class="text-[10px] text-slate-400 mt-1">Universal Access: Any enrolled ABES EC student can log in using their roll number.</p>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
+            SIMS ERP Password
+          </label>
+          <div class="relative">
+            <input id="erpLoginPassword" type="password" required placeholder="Enter your ERP password (min 3 chars)" class="w-full pl-9 pr-9 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-400 text-xs">
+            <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
+            <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-3 text-slate-400 hover:text-slate-200">
+              <i data-lucide="eye" id="erpEyeIcon" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Anti-Bot Security Captcha -->
+        <div>
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
+            Anti-Bot Security Captcha Verification
+          </label>
+          <div class="flex items-center space-x-2">
+            <div id="erpCaptchaDisplayBox" class="flex-1 bg-gradient-to-r from-amber-100 to-amber-200 dark:from-slate-800 dark:to-slate-700 border-2 border-dashed border-amber-400/60 rounded-xl py-2 px-3 flex items-center justify-center select-none shadow-inner tracking-widest font-mono text-lg font-black text-[#0B2545] dark:text-amber-300 relative overflow-hidden" style="letter-spacing: 0.35em;">
+              <span id="erpCaptchaCodeText">----</span>
+              <div class="absolute inset-0 pointer-events-none opacity-20 bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:6px_6px]"></div>
+            </div>
+            <button type="button" onclick="fetchCaptcha()" id="erpCaptchaRefreshBtn" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-700 transition" title="Refresh Captcha">
+              <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+            </button>
+          </div>
+          <input id="erpCaptchaInput" type="text" required maxlength="6" placeholder="Type the 4 characters shown above" class="w-full mt-2 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white uppercase font-mono text-center tracking-widest text-xs focus:ring-2 focus:ring-amber-400 focus:outline-none">
+        </div>
+
+        <div class="pt-2 flex items-center justify-end space-x-2">
+          <button type="button" onclick="closeErpLoginModal()" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 text-xs font-semibold transition">
+            Cancel
+          </button>
+          <button type="submit" id="erpSubmitBtn" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-[#0B2545] font-bold text-xs shadow-md transition flex items-center space-x-1.5">
+            <i data-lucide="shield-check" class="w-4 h-4"></i>
+            <span>Verify & Enter SIMS</span>
+          </button>
+        </div>
+
+        <div class="pt-2 border-t border-slate-200 dark:border-slate-800 text-[10px] text-slate-400 text-center">
+          For testing/demo: Enter any roll number (e.g. <span class="font-mono text-amber-500 cursor-pointer" onclick="document.getElementById('erpLoginIdentifier').value='2100320100045'; document.getElementById('erpLoginPassword').value='abes2026';">2100320100045</span>) or <span class="font-mono text-amber-500 cursor-pointer" onclick="document.getElementById('erpLoginIdentifier').value='admin'; document.getElementById('erpLoginPassword').value='admin123';">admin</span> with password ≥ 3 chars.
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ========================================================================= -->
+  <!-- 5. JAVASCRIPT APPLICATION CORE (REST APIS, FORMS, TOOLS & UI)            -->
+  <!-- ========================================================================= -->
+  <script>
+    // Global Application State
+    let currentView = 'landing';
+    let currentTool = 'chat';
+    let isVoiceListening = false;
+    let recognition = null;
+    let collegeDataset = null;
+    let currentStudentSession = null;
+    let currentCaptchaToken = null;
+
+    // Initialize on Page Load
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+      fetchActiveSession();
+      loadCollegeDataset();
+      calculateFeesLive();
+      setupSpeechRecognition();
+      loadLandingFaqs();
+      loadAuditLogs();
+    });
+
+    function toggleMobileSidebar() {
+      const sidebar = document.getElementById("sidebarNav");
+      sidebar.classList.toggle("hidden");
+    }
+
+    // View Switcher (Landing vs Dashboard)
+    function switchView(view) {
+      currentView = view;
+      const landing = document.getElementById("landingPageView");
+      const dash = document.getElementById("dashboardView");
+      const btnText = document.getElementById("viewToggleText");
+
+      if (view === 'dashboard') {
+        landing.classList.add("hidden");
+        dash.classList.remove("hidden");
+        btnText.textContent = "Back to Home";
+      } else {
+        dash.classList.add("hidden");
+        landing.classList.remove("hidden");
+        btnText.textContent = "Open Dashboard";
+      }
+      lucide.createIcons();
+    }
+
+    function toggleMainView() {
+      if (currentView === 'landing') switchView('dashboard');
+      else switchView('landing');
+    }
+
+    // Sidebar Tool Navigation
+    function showTool(toolId) {
+      currentTool = toolId;
+      document.querySelectorAll(".tool-pane").forEach(el => el.classList.add("hidden"));
+      
+      const targetPane = document.getElementById(`pane-${toolId}`);
+      if (targetPane) targetPane.classList.remove("hidden");
+
+      // Update sidebar active buttons
+      document.querySelectorAll("#sidebarNav button").forEach(b => {
+        b.classList.remove("bg-slate-800", "text-white");
+        b.classList.add("text-slate-300");
+      });
+      const activeNav = document.getElementById(`nav-${toolId}`);
+      if (activeNav) {
+        activeNav.classList.add("bg-slate-800", "text-white");
+        activeNav.classList.remove("text-slate-300");
+      }
+
+      if (toolId === 'campus-facilities') {
+        showFacilityTab('blocks');
+      } else if (toolId === 'erp') {
+        renderErpDashboard();
+      }
+
+      lucide.createIcons();
+    }
+
+    function toggleDarkMode() {
+      document.documentElement.classList.toggle("dark");
+    }
+
+    function openProfileModal() {
+      renderProfileModal();
+      document.getElementById("profileModal").classList.remove("hidden");
+      lucide.createIcons();
+    }
+    function closeProfileModal() {
+      document.getElementById("profileModal").classList.add("hidden");
+    }
+
+    function handleProfileClick() {
+      if (currentStudentSession) {
+        openProfileModal();
+      } else {
+        openErpLoginModal();
+      }
+    }
+
+    function openErpPortal() {
+      if (!currentStudentSession) {
+        openErpLoginModal();
+      } else {
+        switchView('dashboard');
+        showTool('erp');
+      }
+    }
+
+    // =========================================================================
+    // ABES SIMS ERP AUTHENTICATION & CAPTCHA SECURITY SERVICE
+    // =========================================================================
+
+    async function fetchActiveSession() {
+      try {
+        const res = await fetch("/api/auth/profile");
+        const data = await res.json();
+        if (data.is_authenticated && data.user) {
+          currentStudentSession = data.user;
+        } else {
+          currentStudentSession = null;
+        }
+        updateAuthUI();
+      } catch (err) {
+        console.warn("Session check error:", err);
+      }
+    }
+
+    function updateAuthUI() {
+      const navName = document.getElementById("navProfileName");
+      const navSub = document.getElementById("navProfileSub");
+      const navAvatar = document.getElementById("navProfileAvatar");
+
+      const sideName = document.getElementById("sidebarUserName");
+      const sideSub = document.getElementById("sidebarUserSub");
+      const sideBtnText = document.getElementById("sidebarAuthBtnText");
+      const sideAvatar = document.getElementById("sidebarUserAvatar");
+
+      const chatGreeting = document.getElementById("chatInitialGreeting");
+
+      if (currentStudentSession) {
+        const initials = currentStudentSession.role === 'admin' ? 'AD' : (currentStudentSession.roll_number?.slice(-2) || 'ST');
+        const displayName = currentStudentSession.name || `Student (${currentStudentSession.roll_number})`;
+
+        if (navName) {
+          navName.innerHTML = `<span>${escapeHtml(displayName)}</span><span id="navAuthBadge" class="text-[9px] bg-emerald-500 text-white px-1 rounded font-mono">SIMS</span>`;
+        }
+        if (navSub) {
+          navSub.textContent = `${currentStudentSession.roll_number || 'Admin'} • ${currentStudentSession.department || 'ABES EC'}`;
+        }
+        if (navAvatar) {
+          navAvatar.innerHTML = `<span class="font-bold text-xs">${initials}</span>`;
+          navAvatar.className = "w-7 h-7 rounded-full bg-gradient-to-tr from-amber-400 to-amber-600 text-[#0B2545] flex items-center justify-center text-xs font-black ring-2 ring-amber-400";
+        }
+
+        if (sideName) sideName.textContent = displayName;
+        if (sideSub) sideSub.textContent = `${currentStudentSession.course || currentStudentSession.department || 'B.Tech'}`;
+        if (sideBtnText) sideBtnText.textContent = "SIMS Profile";
+        if (sideAvatar) {
+          sideAvatar.innerHTML = `<span class="font-bold text-xs">${initials}</span>`;
+          sideAvatar.className = "w-8 h-8 rounded-full bg-amber-400 text-[#0B2545] font-black text-xs flex items-center justify-center";
+        }
+
+        if (chatGreeting) {
+          chatGreeting.innerHTML = `Welcome back, <strong>${escapeHtml(displayName)}</strong>! 🎓 Your ABES SIMS session is active (Roll: <strong>${currentStudentSession.roll_number || 'Admin'}</strong>). How can I assist with your studies, syllabus, or campus facilities today?`;
+        }
+      } else {
+        if (navName) {
+          navName.innerHTML = `<span>Guest Student</span><span id="navAuthBadge" class="text-[9px] bg-slate-800 text-slate-300 px-1 rounded">Universal</span>`;
+        }
+        if (navSub) {
+          navSub.textContent = "Click to Sign In to ABES ERP";
+        }
+        if (navAvatar) {
+          navAvatar.innerHTML = `<i data-lucide="user" class="w-4 h-4"></i>`;
+          navAvatar.className = "w-7 h-7 rounded-full bg-slate-800 border border-white/20 text-amber-300 flex items-center justify-center text-xs font-bold ring-2 ring-amber-400/40";
+        }
+
+        if (sideName) sideName.textContent = "Guest Student";
+        if (sideSub) sideSub.textContent = "ABES Student Portal";
+        if (sideBtnText) sideBtnText.textContent = "ERP Login";
+        if (sideAvatar) {
+          sideAvatar.innerHTML = `<i data-lucide="user" class="w-4 h-4"></i>`;
+          sideAvatar.className = "w-8 h-8 rounded-full bg-slate-800 border border-slate-700 text-amber-400 font-bold text-xs flex items-center justify-center";
+        }
+
+        if (chatGreeting) {
+          chatGreeting.innerHTML = `Welcome to <strong>Studentsupport_botProject</strong> — the official AI Student Desk for ABES Engineering College! 🎓 How can I assist with your coursework, syllabus, admissions, faculty directory, library, or fee schedules today?`;
+        }
+      }
+
+      if (currentTool === 'erp') renderErpDashboard();
+      lucide.createIcons();
+    }
+
+    async function fetchCaptcha() {
+      try {
+        const res = await fetch("/api/auth/captcha");
+        const data = await res.json();
+        currentCaptchaToken = data.captcha_token;
+        const codeText = document.getElementById("erpCaptchaCodeText");
+        if (codeText) codeText.textContent = data.captcha_code;
+        const input = document.getElementById("erpCaptchaInput");
+        if (input) input.value = "";
+      } catch (err) {
+        console.warn("Captcha fetch error:", err);
+      }
+    }
+
+    function openErpLoginModal() {
+      const errBox = document.getElementById("erpLoginError");
+      if (errBox) errBox.classList.add("hidden");
+      document.getElementById("erpLoginModal").classList.remove("hidden");
+      fetchCaptcha();
+      setTimeout(() => {
+        const idInput = document.getElementById("erpLoginIdentifier");
+        if (idInput) idInput.focus();
+      }, 100);
+      lucide.createIcons();
+    }
+
+    function closeErpLoginModal() {
+      document.getElementById("erpLoginModal").classList.add("hidden");
+    }
+
+    function togglePasswordVisibility() {
+      const pwdInput = document.getElementById("erpLoginPassword");
+      const icon = document.getElementById("erpEyeIcon");
+      if (pwdInput.type === "password") {
+        pwdInput.type = "text";
+        icon.setAttribute("data-lucide", "eye-off");
+      } else {
+        pwdInput.type = "password";
+        icon.setAttribute("data-lucide", "eye");
+      }
+      lucide.createIcons();
+    }
+
+    async function submitErpLogin(e) {
+      if (e) e.preventDefault();
+      const identifier = document.getElementById("erpLoginIdentifier").value.trim();
+      const password = document.getElementById("erpLoginPassword").value;
+      const captcha_input = document.getElementById("erpCaptchaInput").value.trim();
+      const errBox = document.getElementById("erpLoginError");
+      const errText = document.getElementById("erpLoginErrorText");
+      const submitBtn = document.getElementById("erpSubmitBtn");
+
+      if (!identifier || !password || !captcha_input) {
+        errBox.classList.remove("hidden");
+        errText.textContent = "Please fill in student roll number, password, and captcha code.";
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<span class="animate-spin mr-1.5">⏳</span> Verifying SIMS...`;
+
+      try {
+        const res = await fetch("/api/auth/erp-login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            identifier,
+            password,
+            captcha_input,
+            captcha_token: currentCaptchaToken
+          })
+        });
+        const data = await res.json();
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<i data-lucide="shield-check" class="w-4 h-4"></i><span>Verify & Enter SIMS</span>`;
+        lucide.createIcons();
+
+        if (data.success) {
+          currentStudentSession = data.user;
+          closeErpLoginModal();
+          updateAuthUI();
+          switchView('dashboard');
+          showTool('erp');
+          loadAuditLogs();
+        } else {
+          errBox.classList.remove("hidden");
+          errText.textContent = data.message || "Invalid credentials or captcha code.";
+          fetchCaptcha();
+        }
+      } catch (err) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<i data-lucide="shield-check" class="w-4 h-4"></i><span>Verify & Enter SIMS</span>`;
+        lucide.createIcons();
+        errBox.classList.remove("hidden");
+        errText.textContent = "Network error connecting to local SIMS auth gateway.";
+      }
+    }
+
+    async function logoutStudent() {
+      try {
+        await fetch("/api/auth/logout", { method: "POST" });
+      } catch (err) {}
+      currentStudentSession = null;
+      closeProfileModal();
+      updateAuthUI();
+      if (currentTool === 'erp') renderErpDashboard();
+      loadAuditLogs();
+    }
+
+    function renderErpDashboard() {
+      const container = document.getElementById("erpPaneContainer");
+      if (!container) return;
+
+      if (!currentStudentSession) {
+        container.innerHTML = `
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-8 text-center max-w-xl mx-auto space-y-5 my-8">
+            <div class="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto border border-amber-500/30">
+              <i data-lucide="shield-alert" class="w-8 h-8"></i>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-slate-900 dark:text-white">ABES SIMS ERP — Access Gated</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-md mx-auto leading-relaxed">
+                Institutional access is restricted to verified ABES Engineering College students and faculty members. Please authenticate with your student roll number and anti-bot security captcha to view live attendance records, internal sessional marks, and fee payment vouchers.
+              </p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-left text-xs space-y-1.5">
+              <div class="flex items-center space-x-2 text-emerald-600 dark:text-emerald-400 font-semibold">
+                <i data-lucide="lock" class="w-4 h-4"></i>
+                <span>Protected Under SIMS Single Sign-On Governance</span>
+              </div>
+              <div class="text-[11px] text-slate-500">Universal Access: Any enrolled student roll number or admission number can authenticate.</div>
+            </div>
+            <button onclick="openErpLoginModal()" class="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-[#0B2545] font-bold text-xs shadow-lg transition flex items-center justify-center space-x-2 mx-auto">
+              <i data-lucide="shield-check" class="w-4 h-4"></i>
+              <span>Sign In to ABES SIMS ERP</span>
+            </button>
+          </div>
+        `;
+      } else {
+        const stu = currentStudentSession;
+        const initials = stu.role === 'admin' ? 'AD' : (stu.roll_number?.slice(-2) || 'ST');
+        container.innerHTML = `
+          <div class="space-y-6">
+            <!-- Top ID Card Banner -->
+            <div class="bg-gradient-to-r from-[#0B2545] via-[#134074] to-[#0B2545] rounded-2xl p-5 text-white shadow-xl border border-amber-400/30">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-center space-x-4">
+                  <div class="w-16 h-16 rounded-2xl bg-amber-400 text-[#0B2545] font-black text-xl flex items-center justify-center shadow-lg ring-4 ring-white/20">
+                    ${initials}
+                  </div>
+                  <div>
+                    <div class="flex items-center space-x-2">
+                      <h3 class="text-lg font-bold tracking-tight">${escapeHtml(stu.name)}</h3>
+                      <span class="text-[10px] bg-emerald-500 text-white font-bold px-2 py-0.5 rounded-full">Verified Active Session</span>
+                    </div>
+                    <div class="text-xs text-amber-300 font-mono mt-0.5">Roll No: <strong>${stu.roll_number || 'N/A'}</strong> | Admission No: <strong>${stu.admission_number || 'N/A'}</strong></div>
+                    <div class="text-xs text-slate-300 mt-1">${stu.course || 'B.Tech'} • Semester ${stu.semester || 6} (${stu.section || 'Sec A'}) • ${stu.department || 'CSE'}</div>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-2 self-start sm:self-auto">
+                  <button onclick="window.print()" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold border border-white/20 transition flex items-center space-x-1.5">
+                    <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                    <span>Print ERP Slip</span>
+                  </button>
+                  <button onclick="logoutStudent()" class="px-3 py-1.5 rounded-xl bg-rose-500/80 hover:bg-rose-500 text-white text-xs font-bold transition flex items-center space-x-1.5">
+                    <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                    <span>Logout</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Key Metrics Row -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+              <div class="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div class="text-slate-400 text-[11px]">Overall Attendance</div>
+                <div class="text-xl font-black text-emerald-500 mt-1">${stu.overall_attendance || '84.6%'}</div>
+                <div class="text-[10px] text-emerald-600 dark:text-emerald-400 mt-0.5 font-semibold">✓ Meets 75% Mandatory Rule</div>
+              </div>
+              <div class="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div class="text-slate-400 text-[11px]">Cumulative CGPA</div>
+                <div class="text-xl font-black text-blue-500 mt-1">${stu.current_cgpa || '8.72'}</div>
+                <div class="text-[10px] text-blue-600 dark:text-blue-400 mt-0.5 font-semibold">First Division with Distinction</div>
+              </div>
+              <div class="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div class="text-slate-400 text-[11px]">Fee Clearance</div>
+                <div class="text-sm font-bold text-slate-800 dark:text-slate-200 mt-1">${stu.fee_clearance_status || 'Verified on ERP'}</div>
+                <div class="text-[10px] text-emerald-600 dark:text-emerald-400 mt-0.5 font-semibold">✓ No Dues Pending</div>
+              </div>
+              <div class="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div class="text-slate-400 text-[11px]">Hostel Residence</div>
+                <div class="text-sm font-bold text-slate-800 dark:text-slate-200 mt-1">${stu.hostel || 'Dayanand / Saraswati Bhawan'}</div>
+                <div class="text-[10px] text-slate-500 mt-0.5">Biometric Gate Clearance: Active</div>
+              </div>
+            </div>
+
+            <!-- Subject-wise Attendance Breakdown Table -->
+            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-3">
+              <div class="flex items-center justify-between">
+                <h4 class="font-bold text-sm text-slate-900 dark:text-white flex items-center space-x-2">
+                  <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-500"></i>
+                  <span>Subject-Wise Attendance Breakdown (Even Semester 2026)</span>
+                </h4>
+                <span class="text-[10px] bg-amber-400/20 text-amber-600 dark:text-amber-400 border border-amber-400/40 px-2 py-0.5 rounded-full font-semibold">Live SIMS Sync</span>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                  <thead class="bg-slate-50 dark:bg-slate-800 text-slate-500 border-b border-slate-200 dark:border-slate-700">
+                    <tr>
+                      <th class="p-2.5">Course Code & Subject</th>
+                      <th class="p-2.5">Faculty In-Charge</th>
+                      <th class="p-2.5">Held</th>
+                      <th class="p-2.5">Attended</th>
+                      <th class="p-2.5">Percentage</th>
+                      <th class="p-2.5">Sessional Status</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    <tr>
+                      <td class="p-2.5 font-semibold text-slate-800 dark:text-slate-200">KCS-601: Compiler Design</td>
+                      <td class="p-2.5 text-slate-500">Dr. Rizwan Khan</td>
+                      <td class="p-2.5">42</td>
+                      <td class="p-2.5 font-bold">37</td>
+                      <td class="p-2.5 font-mono font-bold text-emerald-500">88.1%</td>
+                      <td class="p-2.5"><span class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 font-semibold">Eligible</span></td>
+                    </tr>
+                    <tr>
+                      <td class="p-2.5 font-semibold text-slate-800 dark:text-slate-200">KCS-602: Computer Networks</td>
+                      <td class="p-2.5 text-slate-500">Prof. Amit Sinha</td>
+                      <td class="p-2.5">40</td>
+                      <td class="p-2.5 font-bold">32</td>
+                      <td class="p-2.5 font-mono font-bold text-emerald-500">80.0%</td>
+                      <td class="p-2.5"><span class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 font-semibold">Eligible</span></td>
+                    </tr>
+                    <tr>
+                      <td class="p-2.5 font-semibold text-slate-800 dark:text-slate-200">KCS-061: Big Data & Analytics</td>
+                      <td class="p-2.5 text-slate-500">Dr. Shailendra Kr.</td>
+                      <td class="p-2.5">38</td>
+                      <td class="p-2.5 font-bold">33</td>
+                      <td class="p-2.5 font-mono font-bold text-emerald-500">86.8%</td>
+                      <td class="p-2.5"><span class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 font-semibold">Eligible</span></td>
+                    </tr>
+                    <tr>
+                      <td class="p-2.5 font-semibold text-slate-800 dark:text-slate-200">KCS-651: Compiler Design Lab</td>
+                      <td class="p-2.5 text-slate-500">Lab Faculty Team</td>
+                      <td class="p-2.5">14</td>
+                      <td class="p-2.5 font-bold">13</td>
+                      <td class="p-2.5 font-mono font-bold text-emerald-500">92.8%</td>
+                      <td class="p-2.5"><span class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 font-semibold">Eligible</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Quick ERP Academic Actions -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+              <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-2">
+                <div class="flex items-center space-x-2 text-amber-600 dark:text-amber-400 font-bold">
+                  <i data-lucide="file-check" class="w-4 h-4"></i>
+                  <span>Admit Card 2026</span>
+                </div>
+                <p class="text-[11px] text-slate-500">Sessional Exam II Hall Ticket cleared with zero dues.</p>
+                <button onclick="alert('Admit card generation verified! Downloading ABES_Sessional_AdmitCard.pdf')" class="w-full py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 font-semibold transition">
+                  Download Admit Card
+                </button>
+              </div>
+              <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-2">
+                <div class="flex items-center space-x-2 text-emerald-600 dark:text-emerald-400 font-bold">
+                  <i data-lucide="receipt" class="w-4 h-4"></i>
+                  <span>Fee Receipts</span>
+                </div>
+                <p class="text-[11px] text-slate-500">Annual B.Tech Even Sem clearance slip (PNB RTGS Verified).</p>
+                <button onclick="alert('Downloading verified institutional fee payment receipt: ABES_FEE_REC_2026.pdf')" class="w-full py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 font-semibold transition">
+                  Download Fee Slip
+                </button>
+              </div>
+              <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-2">
+                <div class="flex items-center space-x-2 text-blue-600 dark:text-blue-400 font-bold">
+                  <i data-lucide="external-link" class="w-4 h-4"></i>
+                  <span>AKTU OneView</span>
+                </div>
+                <p class="text-[11px] text-slate-500">View official university semester grade sheets and marks.</p>
+                <a href="https://oneview.aktu.ac.in/WebPages/AKTU/OneView.aspx" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="block text-center py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold transition shadow-sm">
+                  Open Official OneView
+                </a>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      lucide.createIcons();
+    }
+
+    function renderProfileModal() {
+      const container = document.getElementById("profileModalBody");
+      if (!container) return;
+
+      if (!currentStudentSession) {
+        container.innerHTML = `
+          <div class="space-y-4 text-center">
+            <div class="w-14 h-14 rounded-2xl bg-slate-800 border border-slate-700 text-amber-400 flex items-center justify-center mx-auto shadow-inner text-xl font-bold">
+              <i data-lucide="user" class="w-7 h-7"></i>
+            </div>
+            <div>
+              <h4 class="text-base font-bold text-slate-900 dark:text-white">Guest Student Session</h4>
+              <div class="text-[11px] text-slate-500">Universal Public Academic Desk Access</div>
+            </div>
+            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed text-left bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+              You are currently accessing the ABES Engineering College Student AI Desk in universal guest mode. To view your personal semester attendance, CGPA, hostel pass, and fee clearance vouchers, please log in with your college roll number and security captcha.
+            </p>
+            <div class="flex items-center justify-end space-x-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+              <button onclick="closeProfileModal()" class="px-4 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold hover:bg-slate-300 transition">
+                Continue as Guest
+              </button>
+              <button onclick="closeProfileModal(); openErpLoginModal();" class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold text-xs shadow transition flex items-center space-x-1.5">
+                <i data-lucide="shield-check" class="w-4 h-4"></i>
+                <span>Sign In to ABES SIMS ERP</span>
+              </button>
+            </div>
+          </div>
+        `;
+      } else {
+        const stu = currentStudentSession;
+        const initials = stu.role === 'admin' ? 'AD' : (stu.roll_number?.slice(-2) || 'ST');
+        container.innerHTML = `
+          <div class="space-y-4">
+            <div class="flex items-center space-x-3.5 pb-4 border-b border-slate-200 dark:border-slate-800">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-400 to-amber-600 text-[#0B2545] flex items-center justify-center text-lg font-black shadow-md ring-2 ring-amber-400/50">
+                ${initials}
+              </div>
+              <div>
+                <h4 class="text-base font-bold text-slate-900 dark:text-white">${escapeHtml(stu.name)}</h4>
+                <div class="text-slate-500 font-mono text-[11px]">Roll No: <span class="font-bold text-slate-800 dark:text-slate-200">${stu.roll_number || 'N/A'}</span></div>
+                <div class="text-[11px] text-amber-600 dark:text-amber-400 font-medium">${stu.course || 'B.Tech'} • Sem ${stu.semester || 6} (${stu.section || 'A'})</div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 text-[11px]">
+              <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+                <span class="text-slate-400 block">Attendance Rate</span>
+                <span class="text-sm font-bold text-emerald-500">${stu.overall_attendance || '84.6%'}</span>
+                <span class="text-[10px] text-slate-400 block">Eligible for Sessional & Finals</span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+                <span class="text-slate-400 block">Cumulative CGPA</span>
+                <span class="text-sm font-bold text-blue-500">${stu.current_cgpa || '8.72'}</span>
+                <span class="text-[10px] text-slate-400 block">Dean's Honor Roll</span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+                <span class="text-slate-400 block">Fee Clearance</span>
+                <span class="text-xs font-semibold text-emerald-500">${stu.fee_clearance_status || 'Even Sem Paid'}</span>
+                <span class="text-[10px] text-slate-400 block">No dues pending</span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+                <span class="text-slate-400 block">Hostel Residence</span>
+                <span class="text-xs font-semibold text-slate-800 dark:text-slate-200">${stu.hostel || 'Dayanand / Saraswati'}</span>
+                <span class="text-[10px] text-slate-400 block">Gate Pass: Verified</span>
+              </div>
+            </div>
+
+            <div class="p-3 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center">
+              <button onclick="logoutStudent()" class="px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 text-xs font-semibold transition flex items-center space-x-1">
+                <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                <span>Log Out of SIMS</span>
+              </button>
+              <button onclick="closeProfileModal()" class="px-4 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold hover:bg-slate-300 dark:hover:bg-slate-600 transition">
+                Close
+              </button>
+            </div>
+          </div>
+        `;
+      }
+      lucide.createIcons();
+    }
+
+    // =========================================================================
+    // REST API CALLS & DATA HYDRATION
+    // =========================================================================
+
+    async function loadCollegeDataset() {
+      try {
+        const res = await fetch("/api/info/dataset");
+        collegeDataset = await res.json();
+        
+        renderLandingPhotos(collegeDataset.photos || []);
+        renderNotices(collegeDataset.notices || []);
+        renderFaculty(collegeDataset.faculty || []);
+        renderPlacementsTable(collegeDataset.placements?.marquee_recruiters || []);
+        renderAdmissionsDocList(collegeDataset.admissions?.documents_required || []);
+        showFacilityTab('blocks');
+      } catch (err) {
+        console.warn("Dataset load error:", err);
+      }
+    }
+
+    function renderLandingPhotos(photos) {
+      const container = document.getElementById("landingPhotosGrid");
+      if (!container) return;
+      container.innerHTML = photos.map(p => `
+        <div class="group rounded-2xl overflow-hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl transition">
+          <div class="h-48 overflow-hidden relative">
+            <img src="${p.url}" alt="${escapeHtml(p.title)}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80'">
+            <span class="absolute top-3 left-3 bg-[#0B2545]/80 backdrop-blur-md text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-400/30">
+              ${p.category}
+            </span>
+          </div>
+          <div class="p-4">
+            <h4 class="font-bold text-sm text-slate-900 dark:text-white">${escapeHtml(p.title)}</h4>
+            <p class="text-xs text-slate-500 mt-1 leading-relaxed">${escapeHtml(p.caption)}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderFaculty(facultyList) {
+      const container = document.getElementById("facultyCardsContainer");
+      if (!container) return;
+      container.innerHTML = facultyList.map(f => `
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm text-xs space-y-2">
+          <div class="flex items-start justify-between">
+            <div>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400">${f.dept_code}</span>
+              <h4 class="font-bold text-sm text-slate-900 dark:text-white mt-1">${escapeHtml(f.name)}</h4>
+              <div class="text-amber-600 dark:text-amber-400 font-medium">${escapeHtml(f.designation)}</div>
+            </div>
+            <div class="text-right text-[11px] text-slate-400 font-semibold">${f.experience}</div>
+          </div>
+          <div class="text-slate-600 dark:text-slate-400 text-[11px]">
+            <strong>Qualifications:</strong> ${escapeHtml(f.qualification)}
+          </div>
+          <div class="text-slate-600 dark:text-slate-400 text-[11px]">
+            <strong>Subjects:</strong> ${f.subjects.join(", ")}
+          </div>
+          <div class="p-2 rounded-lg bg-slate-50 dark:bg-slate-800 text-[10px] text-slate-500 flex justify-between items-center">
+            <span>📍 ${escapeHtml(f.room)}</span>
+            <span>✉️ ${escapeHtml(f.email)}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterFacultyByDept(dept) {
+      if (!collegeDataset) return;
+      if (dept === 'all') {
+        renderFaculty(collegeDataset.faculty);
+      } else {
+        const filtered = collegeDataset.faculty.filter(f => f.dept_code.toLowerCase() === dept.toLowerCase());
+        renderFaculty(filtered);
+      }
+    }
+
+    function renderPlacementsTable(recruiters) {
+      const container = document.getElementById("marqueeRecruitersTable");
+      if (!container) return;
+      container.innerHTML = `
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-100 dark:bg-slate-800 text-slate-500 border-b border-slate-200 dark:border-slate-700">
+            <tr>
+              <th class="p-2.5">Recruiter Company</th>
+              <th class="p-2.5">Offered Package (CTC)</th>
+              <th class="p-2.5">Key Role / Designation</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            ${recruiters.map(r => `
+              <tr>
+                <td class="p-2.5 font-bold text-slate-800 dark:text-slate-200">${escapeHtml(r.company)}</td>
+                <td class="p-2.5 font-mono font-bold text-purple-600 dark:text-purple-400">${escapeHtml(r.ctc)}</td>
+                <td class="p-2.5 text-slate-600 dark:text-slate-400">${escapeHtml(r.role)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function renderAdmissionsDocList(docs) {
+      const container = document.getElementById("admissionsDocList");
+      if (!container) return;
+      container.innerHTML = docs.map(d => `
+        <div class="flex items-center space-x-2 p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800">
+          <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 flex-shrink-0"></i>
+          <span>${escapeHtml(d)}</span>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    // Facility Tabs Switcher
+    function showFacilityTab(tab) {
+      if (!collegeDataset || !collegeDataset.facilities) return;
+      const f = collegeDataset.facilities;
+      const container = document.getElementById("facilityContentContainer");
+      
+      document.querySelectorAll("[id^='ftab-']").forEach(b => {
+        b.className = "px-3 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold";
+      });
+      const activeBtn = document.getElementById(`ftab-${tab}`);
+      if (activeBtn) activeBtn.className = "px-3 py-1.5 rounded-xl bg-amber-500 text-slate-900 font-bold shadow-sm";
+
+      if (tab === 'blocks') {
+        const blocks = collegeDataset.building_blocks || [];
+        container.innerHTML = `
+          <div class="space-y-4">
+            <div class="p-4 bg-gradient-to-r from-blue-900/40 via-indigo-900/30 to-purple-900/30 border border-blue-500/30 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+                  <span>🏛️ Official Campus Academic & Administrative Blocks</span>
+                </h3>
+                <p class="text-slate-500 dark:text-slate-400 text-xs mt-0.5">8 official multi-storey building blocks across the 15.7-acre campus with smart classrooms, AC labs, research centers, and elevators.</p>
+              </div>
+              <span class="px-3 py-1 rounded-full bg-amber-500 text-slate-950 font-bold text-xs self-start sm:self-auto shadow-sm">8 Official Blocks</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+              ${blocks.map(b => {
+                const img = b.image || b.photo_url || 'https://upload.wikimedia.org/wikipedia/commons/7/79/ABES_Engineering_College_03.jpg';
+                return `
+                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md transition">
+                  <div class="h-48 overflow-hidden relative group">
+                    <img src="${img}" alt="${escapeHtml(b.name)}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?auto=format&fit=crop&w=800&q=80'">
+                    <span class="absolute top-2.5 left-2.5 bg-[#0B2545]/90 backdrop-blur text-amber-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-amber-400/30">
+                      ${escapeHtml(b.id ? b.id.toUpperCase() : 'ABES EC')}
+                    </span>
+                    <span class="absolute bottom-2.5 right-2.5 bg-black/75 backdrop-blur text-white text-[10px] px-2 py-0.5 rounded-full">
+                      📍 Real Campus Photo
+                    </span>
+                  </div>
+                  <div class="p-4 space-y-2.5">
+                    <h4 class="font-bold text-sm text-slate-900 dark:text-white">${escapeHtml(b.name)}</h4>
+                    <p class="text-slate-600 dark:text-slate-400 text-xs leading-relaxed">${escapeHtml(b.description)}</p>
+                    
+                    <div class="pt-1">
+                      <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Departments & Wings:</span>
+                      <p class="text-slate-800 dark:text-slate-200 text-xs font-medium mt-0.5">${escapeHtml(b.departments || 'Academic & Administrative Units')}</p>
+                    </div>
+
+                    <div class="pt-1">
+                      <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Key Facilities & Labs:</span>
+                      <div class="flex flex-wrap gap-1 mt-1">
+                        ${(b.key_facilities || []).map(f => `<span class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px]">${escapeHtml(f)}</span>`).join('')}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      } else if (tab === 'sports') {
+        const grounds = collegeDataset.sports_grounds || [];
+        const sp = f.sports_and_fitness;
+        container.innerHTML = `
+          <div class="space-y-4">
+            <div class="p-4 bg-gradient-to-r from-emerald-900/40 via-teal-900/30 to-blue-900/30 border border-emerald-500/30 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+                  <span>🏟️ Sports Grounds, International Stadium & Arenas</span>
+                </h3>
+                <p class="text-slate-500 dark:text-slate-400 text-xs mt-0.5">Full-size floodlit cricket stadium, 400m athletic track, acrylic basketball courts, indoor courts, and gymnasiums.</p>
+              </div>
+              <span class="px-3 py-1 rounded-full bg-emerald-500 text-slate-950 font-bold text-xs self-start sm:self-auto shadow-sm">7 Sports Arenas</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+              ${grounds.map(g => {
+                const img = g.image || g.photo_url || 'https://upload.wikimedia.org/wikipedia/commons/8/88/ABES_Cricket_stadium.jpg';
+                return `
+                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md transition">
+                  <div class="h-48 overflow-hidden relative group">
+                    <img src="${img}" alt="${escapeHtml(g.name)}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=800&q=80'">
+                    <span class="absolute top-2.5 left-2.5 bg-emerald-700/90 backdrop-blur text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                      ${escapeHtml(g.category || 'Sports Arena')}
+                    </span>
+                    <span class="absolute bottom-2.5 right-2.5 bg-black/75 backdrop-blur text-amber-300 text-[10px] font-mono px-2 py-0.5 rounded-full">
+                      ⏱️ ${escapeHtml(g.timings || '6:00 AM - 8:30 PM')}
+                    </span>
+                  </div>
+                  <div class="p-4 space-y-2.5">
+                    <h4 class="font-bold text-sm text-slate-900 dark:text-white">${escapeHtml(g.name)}</h4>
+                    
+                    <div class="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-500/20 text-xs">
+                      <strong>📐 Dimensions & Specs:</strong> ${escapeHtml(g.dimensions)}
+                    </div>
+
+                    <div>
+                      <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Features & Equipment:</span>
+                      <div class="space-y-1 mt-1">
+                        ${(g.features || []).map(feat => `
+                          <div class="flex items-start space-x-1.5 text-slate-600 dark:text-slate-300 text-[11px]">
+                            <span class="text-emerald-500 font-bold">✓</span>
+                            <span>${escapeHtml(feat)}</span>
+                          </div>
+                        `).join('')}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `;
+              }).join('')}
+            </div>
+
+            <!-- Sports overview banner -->
+            <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs space-y-1.5">
+              <div class="font-bold text-slate-900 dark:text-white">🏆 College Sports Teams & AKTU Zonal Participation:</div>
+              <p class="text-slate-600 dark:text-slate-400 text-xs leading-relaxed">
+                ABES EC hosts the annual inter-college sports festival <strong>"CHAKRAVYUH"</strong> and fields competitive varsity teams in Cricket, Football, Basketball, Volleyball, and Badminton across AKTU State and Zonal Sports Meets with sports scholarship quotas and dedicated NIS-certified coaches.
+              </p>
+            </div>
+          </div>
+        `;
+      } else if (tab === 'library') {
+        const lib = f.central_library;
+        container.innerHTML = `
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm text-xs space-y-4">
+            <img src="https://www.abes.ac.in/assets/Life@ABESEC/Our%20Facilities/Library.webp" alt="Central Library" class="w-full h-56 object-cover" onerror="this.src='https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=1000&q=80'">
+            <div class="p-5 space-y-3">
+              <div class="flex justify-between items-start">
+                <div>
+                  <h3 class="text-base font-bold text-slate-900 dark:text-white">${lib.name}</h3>
+                  <div class="text-slate-500">📍 ${lib.location} | Timings: ${lib.timings}</div>
+                </div>
+                <span class="px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 font-bold">1,20,000+ Books</span>
+              </div>
+              <div class="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30">
+                <strong>🎁 Free Semester Book Bank Scheme:</strong> ${lib.book_bank_scheme}
+              </div>
+              <p class="text-slate-600 dark:text-slate-400"><strong>E-Resources:</strong> ${lib.digital_resources}</p>
+              <p class="text-slate-600 dark:text-slate-400"><strong>Infrastructure:</strong> ${lib.reading_capacity}</p>
+              <div class="text-[11px] text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800">${lib.librarian_helpdesk}</div>
+            </div>
+          </div>
+        `;
+      } else if (tab === 'auditorium') {
+        const aud = f.auditorium;
+        container.innerHTML = `
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm text-xs space-y-4">
+            <img src="https://www.abes.ac.in/assets/Life@ABESEC/Fests/Banner1.webp" alt="Auditorium" class="w-full h-56 object-cover" onerror="this.src='https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1000&q=80'">
+            <div class="p-5 space-y-3">
+              <div class="flex justify-between items-start">
+                <div>
+                  <h3 class="text-base font-bold text-slate-900 dark:text-white">${aud.name}</h3>
+                  <div class="text-slate-500">📍 ${aud.location} | ${aud.capacity}</div>
+                </div>
+                <span class="px-2.5 py-1 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 font-bold">Dolby Sound</span>
+              </div>
+              <p class="text-slate-600 dark:text-slate-400">${aud.features}</p>
+              <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800">
+                <strong>Major Events:</strong> ${aud.events}
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (tab === 'hostels') {
+        const h = f.hostels_and_mess;
+        container.innerHTML = `
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm text-xs space-y-4">
+            <img src="https://www.abes.ac.in/assets/Life@ABESEC/Our%20Facilities/Hostels.webp" alt="Hostels" class="w-full h-56 object-cover" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/e/ef/ABES_Engineering_College_06.jpg'">
+            <div class="p-5 space-y-3">
+              <div class="flex justify-between items-start">
+                <div>
+                  <h3 class="text-base font-bold text-slate-900 dark:text-white">Boys Hostels (Dayanand, Vivekanand) & Girls Hostels (Saraswati, Kasturba)</h3>
+                  <div class="text-slate-500">Curfew: ${h.curfew_timings}</div>
+                </div>
+                <span class="px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 font-bold">24x7 Wi-Fi & Power</span>
+              </div>
+              <h4 class="font-bold text-sm text-slate-800 dark:text-slate-200 mt-2">Daily 4-Meal Mess Schedule:</h4>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                <div class="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800">🍳 <strong>Breakfast:</strong> ${h.mess_schedule.breakfast}</div>
+                <div class="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800">🍛 <strong>Lunch:</strong> ${h.mess_schedule.lunch}</div>
+                <div class="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800">☕ <strong>Evening Snacks:</strong> ${h.mess_schedule.evening_tea}</div>
+                <div class="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800">🍲 <strong>Dinner:</strong> ${h.mess_schedule.dinner}</div>
+              </div>
+              <div class="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-400/30">
+                <strong>Sunday Feast:</strong> ${h.mess_schedule.sunday_special}
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (tab === 'canteens') {
+        const din = f.canteens_and_dining;
+        container.innerHTML = `
+          <div class="space-y-4">
+            <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1000&q=80" alt="Canteen" class="w-full h-56 object-cover rounded-2xl shadow-sm">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              ${din.map(d => `
+                <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+                  <div class="flex justify-between items-center mb-1">
+                    <h4 class="font-bold text-slate-900 dark:text-white">${escapeHtml(d.name)}</h4>
+                    <span class="text-[10px] text-slate-400">${d.timings}</span>
+                  </div>
+                  <div class="text-[11px] text-amber-600 dark:text-amber-400">📍 ${escapeHtml(d.location)}</div>
+                  <p class="text-slate-600 dark:text-slate-400 mt-2">${escapeHtml(d.menu)}</p>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      } else if (tab === 'clubs') {
+        const cl = f.student_clubs;
+        const fe = f.annual_festivals;
+        container.innerHTML = `
+          <div class="space-y-4 text-xs">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              ${cl.map(c => `
+                <div class="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300">${c.category}</span>
+                  <h4 class="font-bold text-slate-900 dark:text-white mt-1">${escapeHtml(c.name)}</h4>
+                  <p class="text-slate-600 dark:text-slate-400 mt-1">${escapeHtml(c.focus)}</p>
+                </div>
+              `).join('')}
+            </div>
+            <div class="p-4 rounded-xl bg-gradient-to-r from-amber-500/10 to-indigo-500/10 border border-amber-500/30">
+              <h4 class="font-bold text-slate-900 dark:text-white text-sm mb-2">Annual Flagship Festivals:</h4>
+              <div class="space-y-2">
+                ${fe.map(f => `<div><strong>${f.name} (${f.type}):</strong> ${f.description}</div>`).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      lucide.createIcons();
+    }
+
+    // 1. CHAT HANDLING
+    async function handleSendChat() {
+      const input = document.getElementById("chatInput");
+      const text = input.value.trim();
+      if (!text) return;
+
+      appendUserMessage(text);
+      input.value = "";
+      showTyping(true);
+
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: text })
+        });
+        const data = await response.json();
+        showTyping(false);
+        appendBotMessage(data.answer, data.category, data.suggested_actions);
+      } catch (err) {
+        showTyping(false);
+        appendBotMessage(
+          "⚠️ **Connection Notice:** Could not reach the local backend. Please ensure the Python server is running (`python3 run.py`).",
+          "System",
+          ["Retry Query", "Fee Calculator", "Check Wi-Fi"]
+        );
+      }
+    }
+
+    function fillPrompt(prompt) {
+      const input = document.getElementById("chatInput");
+      input.value = prompt;
+      handleSendChat();
+    }
+
+    function appendUserMessage(msg) {
+      const container = document.getElementById("chatMessages");
+      const div = document.createElement("div");
+      div.className = "flex justify-end";
+      div.innerHTML = `
+        <div class="bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 rounded-2xl rounded-tr-sm px-4 py-2.5 max-w-lg text-xs sm:text-sm font-medium shadow-sm">
+          ${escapeHtml(msg)}
+        </div>
+      `;
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function appendBotMessage(markdown, category = "Academic Guidance", suggested = []) {
+      const container = document.getElementById("chatMessages");
+      const div = document.createElement("div");
+      div.className = "flex items-start space-x-3";
+
+      let actionsHtml = "";
+      if (suggested && suggested.length > 0) {
+        actionsHtml = `
+          <div class="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800 flex flex-wrap gap-1.5 text-xs">
+            ${suggested.map(action => `
+              <button onclick="handleActionClick('${escapeHtml(action)}')" class="px-2.5 py-1 rounded-lg bg-amber-400/10 hover:bg-amber-400/20 text-amber-700 dark:text-amber-400 border border-amber-400/30 transition text-[11px]">
+                ${escapeHtml(action)}
+              </button>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      div.innerHTML = `
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-400 to-amber-600 text-[#0B2545] font-black text-sm flex items-center justify-center flex-shrink-0 shadow">
+          A
+        </div>
+        <div class="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 text-xs sm:text-sm text-slate-800 dark:text-slate-200 shadow-sm leading-relaxed">
+          <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+            <span class="font-bold text-amber-600 dark:text-amber-400">Studentsupport_bot • ${escapeHtml(category)}</span>
+            <div class="flex items-center space-x-2">
+              <button onclick="copyMessageText(this)" class="hover:text-amber-500 p-0.5" title="Copy response">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              </button>
+              <button onclick="this.classList.toggle('text-emerald-500')" class="hover:text-emerald-500 p-0.5" title="Helpful">
+                <i data-lucide="thumbs-up" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+          <div class="prose dark:prose-invert max-w-none text-xs sm:text-sm">
+            ${marked.parse(markdown)}
+          </div>
+          ${actionsHtml}
+        </div>
+      `;
+      container.appendChild(div);
+      lucide.createIcons();
+
+      if (window.renderMathInElement) {
+        renderMathInElement(div, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function handleActionClick(actionText) {
+      if (actionText === "Fee Calculator Tool" || actionText === "Fee Calculator") {
+        showTool('fee-calculator');
+      } else if (actionText.includes("Admission")) {
+        showTool('admissions');
+      } else if (actionText.includes("Faculty")) {
+        showTool('faculty');
+      } else if (actionText.includes("Placement")) {
+        showTool('placements');
+      } else if (actionText.includes("Library") || actionText.includes("Hostel") || actionText.includes("Canteen")) {
+        showTool('campus-facilities');
+      } else if (actionText === "Study Planner") {
+        showTool('planner');
+      } else if (actionText.includes("Quiz")) {
+        showTool('quiz');
+      } else {
+        fillPrompt(actionText);
+      }
+    }
+
+    function showTyping(show) {
+      const el = document.getElementById("typingIndicator");
+      if (show) el.classList.remove("hidden");
+      else el.classList.add("hidden");
+    }
+
+    function startNewChat() {
+      showTool('chat');
+      const container = document.getElementById("chatMessages");
+      container.innerHTML = `
+        <div class="flex items-start space-x-3">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-400 to-amber-600 text-[#0B2545] font-black text-sm flex items-center justify-center flex-shrink-0 shadow">
+            A
+          </div>
+          <div class="flex-1 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 text-xs sm:text-sm text-slate-800 dark:text-slate-200 shadow-sm">
+            <div class="font-bold text-xs text-amber-600 dark:text-amber-400 mb-1">Studentsupport_bot (ABES EC Student AI Desk)</div>
+            <p>New conversation started! Ask anything about admissions, leadership, faculty, placements, library, fees, or algorithms.</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function copyMessageText(btn) {
+      const card = btn.closest(".flex-1");
+      const prose = card.querySelector(".prose");
+      if (prose) {
+        navigator.clipboard.writeText(prose.innerText);
+        btn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i>`;
+        lucide.createIcons();
+        setTimeout(() => {
+          btn.innerHTML = `<i data-lucide="copy" class="w-3.5 h-3.5"></i>`;
+          lucide.createIcons();
+        }, 2000);
+      }
+    }
+
+    function setupSpeechRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) return;
+      recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-IN';
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById("chatInput").value = transcript;
+        toggleVoiceInput();
+        handleSendChat();
+      };
+
+      recognition.onerror = () => toggleVoiceInput();
+      recognition.onend = () => toggleVoiceInput(false);
+    }
+
+    function toggleVoiceInput(forceState) {
+      if (!recognition) return;
+      isVoiceListening = forceState !== undefined ? forceState : !isVoiceListening;
+      const btn = document.getElementById("voiceBtn");
+
+      if (isVoiceListening) {
+        try {
+          recognition.start();
+          btn.classList.add("text-rose-500", "animate-pulse");
+        } catch (e) {
+          isVoiceListening = false;
+        }
+      } else {
+        try { recognition.stop(); } catch (e) {}
+        btn.classList.remove("text-rose-500", "animate-pulse");
+      }
+    }
+
+    function triggerNoteUpload() {
+      const title = prompt("Enter lecture notes topic to summarize:", "Computer Networks — TCP 3-Way Handshake");
+      if (title) {
+        showTool('summarize');
+        document.getElementById("summaryTitle").value = title;
+        loadSampleNotes();
+      }
+    }
+
+    // STUDY PLANNER HANDLERS
+    async function submitStudyPlanner() {
+      const subjs = document.getElementById("plannerSubjects").value.split(",").map(s => s.trim());
+      const examDate = document.getElementById("plannerExamDate").value;
+      const hours = parseFloat(document.getElementById("plannerHours").value) || 3;
+      const goal = document.getElementById("plannerGoal").value;
+
+      const container = document.getElementById("plannerResults");
+      container.innerHTML = `<div class="p-4 text-center text-xs text-slate-500"><i data-lucide="loader" class="w-5 h-5 animate-spin mx-auto mb-2 text-cyan-500"></i>Synthesizing personalized revision timeline...</div>`;
+      lucide.createIcons();
+
+      try {
+        const res = await fetch("/api/tools/planner", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ subjects: subjs, exam_date: examDate, daily_hours: hours, target_score: goal })
+        });
+        const plan = await res.json();
+        renderStudyPlan(plan);
+      } catch (err) {
+        container.innerHTML = `<div class="p-3 text-xs text-rose-500">Failed to generate plan. Please verify backend server.</div>`;
+      }
+    }
+
+    function renderStudyPlan(plan) {
+      const container = document.getElementById("plannerResults");
+      container.innerHTML = `
+        <div class="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 p-4 rounded-xl border border-cyan-500/30 flex justify-between items-center text-xs">
+          <div>
+            <h4 class="font-bold text-cyan-700 dark:text-cyan-300 text-sm">${escapeHtml(plan.title)}</h4>
+            <div class="text-slate-500">Target Date: ${plan.exam_date} | Daily Effort: ${plan.daily_hours} hrs/day</div>
+          </div>
+          <button onclick="window.print()" class="px-3 py-1.5 rounded-lg bg-cyan-600 text-white font-semibold text-xs flex items-center space-x-1 shadow">
+            <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+            <span>Export Timetable</span>
+          </button>
+        </div>
+        <div class="space-y-2 mt-3">
+          ${plan.items.map(item => `
+            <div class="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex items-start justify-between gap-3 text-xs">
+              <div class="flex items-start space-x-3">
+                <input type="checkbox" onchange="this.closest('div.flex-1').classList.toggle('line-through')" class="mt-1 rounded text-cyan-600 focus:ring-0 cursor-pointer">
+                <div class="flex-1">
+                  <div class="font-bold text-slate-800 dark:text-slate-200 text-sm">${escapeHtml(item.subject)}</div>
+                  <div class="text-slate-600 dark:text-slate-400 mt-0.5">${escapeHtml(item.topic)}</div>
+                  <div class="text-[11px] text-slate-400 mt-1">📌 ${escapeHtml(item.notes)}</div>
+                </div>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold ${item.priority === 'High' ? 'bg-rose-100 dark:bg-rose-950 text-rose-600' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}">${item.priority} Priority</span>
+                <div class="text-[11px] text-slate-400 mt-1">${item.day}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    // NOTES SUMMARIZER HANDLERS
+    function loadSampleNotes() {
+      document.getElementById("summaryContent").value = 
+`Virtual memory decouples the programmer's view of memory from physical RAM.
+Through paging, the virtual address space is segmented into fixed-size units known as pages (typically 4KB),
+mapped onto physical frames via a hardware page table.
+A Translation Lookaside Buffer (TLB) acts as a high-speed associative hardware cache.
+When a process references a page not resident in main memory, a Page Fault exception is generated,
+causing the OS kernel to execute demand paging from secondary storage.
+In AKTU examinations, 10-mark questions frequently require comparing FIFO, LRU, and Optimal page replacement algorithms,
+and proving Belady's Anomaly for FIFO.`;
+    }
+
+    async function submitSummarizer() {
+      const title = document.getElementById("summaryTitle").value;
+      const content = document.getElementById("summaryContent").value;
+      if (!content.trim()) return alert("Please enter or load lecture notes first!");
+
+      const container = document.getElementById("summarizerResults");
+      container.innerHTML = `<div class="p-4 text-center text-xs text-slate-500"><i data-lucide="loader" class="w-5 h-5 animate-spin mx-auto mb-2 text-emerald-500"></i>Extracting structured summary and 3D flashcards...</div>`;
+      lucide.createIcons();
+
+      try {
+        const res = await fetch("/api/tools/summarize", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ filename: title, content: content })
+        });
+        const summary = await res.json();
+        renderSummaryOutput(summary);
+      } catch (err) {
+        container.innerHTML = `<div class="p-3 text-xs text-rose-500">Failed to summarize. Check Python server.</div>`;
+      }
+    }
+
+    function renderSummaryOutput(data) {
+      const container = document.getElementById("summarizerResults");
+      container.innerHTML = `
+        <div class="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-500/30 text-xs">
+          <div class="font-bold text-emerald-800 dark:text-emerald-300 text-sm mb-1">Executive Summary</div>
+          <p class="text-slate-700 dark:text-slate-300 leading-relaxed">${escapeHtml(data.executive_summary)}</p>
+        </div>
+
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm text-xs">
+          <div class="font-bold text-slate-900 dark:text-white mb-2">Key Takeaways & AKTU Derivations:</div>
+          <ul class="list-disc list-inside space-y-1.5 text-slate-600 dark:text-slate-400">
+            ${data.key_points.map(pt => `<li>${escapeHtml(pt)}</li>`).join('')}
+          </ul>
+        </div>
+
+        <div>
+          <div class="font-bold text-slate-900 dark:text-white text-xs mb-2">Interactive 3D Flashcards (Click any card to flip):</div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            ${data.flashcards.map(fc => `
+              <div onclick="this.classList.toggle('flipped')" class="flashcard h-44 cursor-pointer perspective-1000 select-none">
+                <div class="flashcard-inner relative w-full h-full transform-style-3d shadow-md rounded-xl">
+                  
+                  <div class="absolute inset-0 backface-hidden bg-white dark:bg-slate-900 p-4 rounded-xl border-2 border-emerald-500/40 flex flex-col justify-between">
+                    <div class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Question Card (Front)</div>
+                    <div class="text-xs font-semibold text-slate-800 dark:text-slate-200 leading-snug">${escapeHtml(fc.front)}</div>
+                    <div class="text-[10px] text-slate-400 flex items-center space-x-1">
+                      <i data-lucide="rotate-cw" class="w-3 h-3"></i>
+                      <span>Click card to reveal answer</span>
+                    </div>
+                  </div>
+
+                  <div class="absolute inset-0 backface-hidden rotate-y-180 bg-gradient-to-br from-emerald-600 to-teal-700 text-white p-4 rounded-xl flex flex-col justify-between">
+                    <div class="text-[10px] font-bold text-emerald-200 uppercase tracking-wider">Answer Key (Back)</div>
+                    <div class="text-xs font-medium leading-relaxed">${escapeHtml(fc.back)}</div>
+                    <div class="text-[10px] text-emerald-200">Click to flip back</div>
+                  </div>
+
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    // QUIZ HANDLERS
+    let activeQuizQuestions = [];
+    async function submitGenerateQuiz() {
+      const subject = document.getElementById("quizSubject").value;
+      const difficulty = document.getElementById("quizDifficulty").value;
+
+      const container = document.getElementById("quizContainer");
+      container.innerHTML = `<div class="p-4 text-center text-xs text-slate-500"><i data-lucide="loader" class="w-5 h-5 animate-spin mx-auto mb-2 text-purple-500"></i>Compiling practice test...</div>`;
+      lucide.createIcons();
+
+      try {
+        const res = await fetch(`/api/tools/quiz?subject=${encodeURIComponent(subject)}&difficulty=${encodeURIComponent(difficulty)}&count=4`);
+        activeQuizQuestions = await res.json();
+        renderQuizQuestions(activeQuizQuestions);
+      } catch (err) {
+        container.innerHTML = `<div class="p-3 text-xs text-rose-500">Failed to generate quiz.</div>`;
+      }
+    }
+
+    function renderQuizQuestions(questions) {
+      const container = document.getElementById("quizContainer");
+      container.innerHTML = `
+        <form id="quizForm" onsubmit="event.preventDefault(); evaluateQuiz();" class="space-y-4">
+          ${questions.map((q, qIdx) => `
+            <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm text-xs">
+              <div class="font-bold text-slate-800 dark:text-slate-200 mb-3 text-sm">
+                Q${qIdx + 1}. ${escapeHtml(q.question)}
+              </div>
+              <div class="space-y-2">
+                ${q.options.map((opt, oIdx) => `
+                  <label class="flex items-center space-x-2.5 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 cursor-pointer transition">
+                    <input type="radio" name="question_${qIdx}" value="${oIdx}" class="text-purple-600 focus:ring-0 cursor-pointer">
+                    <span class="text-slate-700 dark:text-slate-300">${escapeHtml(opt)}</span>
+                  </label>
+                `).join('')}
+              </div>
+              <div id="explanation_${qIdx}" class="hidden mt-3 p-2.5 rounded-lg text-xs"></div>
+            </div>
+          `).join('')}
+          <button type="submit" class="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition shadow flex items-center justify-center space-x-2">
+            <i data-lucide="check" class="w-4 h-4"></i>
+            <span>Submit Quiz & View Score</span>
+          </button>
+        </form>
+      `;
+      lucide.createIcons();
+    }
+
+    function evaluateQuiz() {
+      let score = 0;
+      activeQuizQuestions.forEach((q, idx) => {
+        const selected = document.querySelector(`input[name="question_${idx}"]:checked`);
+        const expDiv = document.getElementById(`explanation_${idx}`);
+        expDiv.classList.remove("hidden");
+
+        if (selected && parseInt(selected.value) === q.correct_index) {
+          score++;
+          expDiv.className = "mt-3 p-2.5 rounded-lg text-xs bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30";
+          expDiv.innerHTML = `<strong>Correct!</strong> ${escapeHtml(q.explanation)}`;
+        } else {
+          expDiv.className = "mt-3 p-2.5 rounded-lg text-xs bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-500/30";
+          expDiv.innerHTML = `<strong>Incorrect.</strong> Correct answer: <em>${escapeHtml(q.options[q.correct_index])}</em>.<br>${escapeHtml(q.explanation)}`;
+        }
+      });
+
+      if (score >= 3 && window.confetti) {
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+      }
+
+      alert(`Quiz Evaluation Complete!\nYour Score: ${score} / ${activeQuizQuestions.length} (${Math.round((score / activeQuizQuestions.length) * 100)}%)`);
+    }
+
+    // ASSIGNMENT HELPER HANDLER
+    async function submitAssignmentHelper() {
+      const subject = document.getElementById("assignSubject").value;
+      const question = document.getElementById("assignQuestion").value;
+      if (!question.trim()) return alert("Please enter the assignment question!");
+
+      const container = document.getElementById("assignmentResults");
+      container.innerHTML = `<div class="p-4 text-center text-xs text-slate-500"><i data-lucide="loader" class="w-5 h-5 animate-spin mx-auto mb-2 text-indigo-500"></i>Deconstructing problem into structured steps...</div>`;
+      lucide.createIcons();
+
+      try {
+        const res = await fetch("/api/tools/assignment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ subject, question, level: "guided" })
+        });
+        const data = await res.json();
+        
+        container.innerHTML = `
+          <div class="p-3 bg-amber-50 dark:bg-amber-950/40 rounded-xl border border-amber-400/30 text-xs text-amber-800 dark:text-amber-300">
+            ${escapeHtml(data.integrity_notice)}
+          </div>
+          <div class="space-y-3 mt-3">
+            ${data.steps.map(s => `
+              <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm text-xs">
+                <div class="font-bold text-indigo-600 dark:text-indigo-400 text-sm mb-1">
+                  Step ${s.step_number}: ${escapeHtml(s.title)}
+                </div>
+                <p class="text-slate-700 dark:text-slate-300 leading-relaxed">${escapeHtml(s.description)}</p>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        lucide.createIcons();
+      } catch (err) {
+        container.innerHTML = `<div class="p-3 text-xs text-rose-500">Failed to analyze assignment.</div>`;
+      }
+    }
+
+    // EXAM PREP HANDLER
+    async function submitExamPrep() {
+      const subject = document.getElementById("examPrepSubject").value;
+      const examType = document.getElementById("examPrepType").value;
+
+      const container = document.getElementById("examPrepResults");
+      container.innerHTML = `<div class="p-4 text-center text-xs text-slate-500"><i data-lucide="loader" class="w-5 h-5 animate-spin mx-auto mb-2 text-amber-500"></i>Extracting AKTU Quantum patterns...</div>`;
+      lucide.createIcons();
+
+      try {
+        const res = await fetch("/api/tools/exam-prep", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ subject, exam_type: examType })
+        });
+        const data = await res.json();
+
+        container.innerHTML = `
+          <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm text-xs space-y-3">
+            <div class="font-bold text-sm text-slate-900 dark:text-white flex items-center justify-between">
+              <span>High-Yield Revision Strategy: ${escapeHtml(data.subject)}</span>
+              <span class="text-amber-500 font-mono text-[11px]">${escapeHtml(data.exam_type.toUpperCase())}</span>
+            </div>
+            <div class="space-y-1.5">
+              ${data.high_yield_topics.map(t => `<div class="p-2 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300">🔥 ${escapeHtml(t)}</div>`).join('')}
+            </div>
+            <div class="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-400/30">
+              <strong>Quantum Blueprint:</strong> ${escapeHtml(data.quantum_focus)}
+            </div>
+            <div class="text-[11px] text-slate-400">
+              ⏱️ <strong>Time Allocation:</strong> ${escapeHtml(data.recommended_time_allocation)}
+            </div>
+          </div>
+        `;
+        lucide.createIcons();
+      } catch (err) {
+        container.innerHTML = `<div class="p-3 text-xs text-rose-500">Failed to load exam prep.</div>`;
+      }
+    }
+
+    // FEE CALCULATOR HANDLER
+    async function calculateFeesLive() {
+      const course = document.getElementById("feeCourse").value;
+      const year = parseInt(document.getElementById("feeYear").value) || 1;
+      const hostel = document.getElementById("feeHostel").value;
+      const bus = document.getElementById("feeBus").value;
+
+      try {
+        const res = await fetch(`/api/tools/fee-calculator?course=${course}&year=${year}&hostel_type=${hostel}&bus_route=${bus}`);
+        const data = await res.json();
+        renderFeeBreakdown(data);
+      } catch (err) {
+        console.warn("Fee calculator backend notice:", err);
+      }
+    }
+
+    function renderFeeBreakdown(data) {
+      const container = document.getElementById("feeResults");
+      container.innerHTML = `
+        <div class="p-4 rounded-xl bg-gradient-to-r from-rose-500 to-rose-600 text-white flex justify-between items-center shadow-lg">
+          <div>
+            <div class="text-xs uppercase tracking-wider text-rose-100">Total Net Annual Payable (${data.course} Year ${data.year})</div>
+            <div class="text-3xl font-black mt-0.5">₹${data.total_fee.toLocaleString('en-IN')}/-</div>
+          </div>
+          <a href="https://erp.abes.ac.in" target="_blank" class="px-4 py-2 rounded-xl bg-white text-rose-600 font-bold text-xs hover:bg-rose-50 transition shadow">
+            Pay on ABES ERP
+          </a>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden text-xs shadow-sm">
+          <table class="w-full text-left">
+            <thead class="bg-slate-100 dark:bg-slate-800 text-slate-500 border-b border-slate-200 dark:border-slate-700">
+              <tr>
+                <th class="p-3">Fee Head</th>
+                <th class="p-3 text-right">Amount (INR)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              ${data.breakdown.map(b => `
+                <tr>
+                  <td class="p-3 text-slate-700 dark:text-slate-300">${escapeHtml(b.head)}</td>
+                  <td class="p-3 text-right font-mono font-bold text-slate-900 dark:text-white">₹${b.amount.toLocaleString('en-IN')}/-</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-2">
+          <div class="font-bold text-slate-900 dark:text-white flex items-center justify-between">
+            <span>Verified PNB RTGS / NEFT Account Details</span>
+            <span class="text-[10px] text-amber-500">Submit UTR at Accounts Office (Bhabha Block Rm 004)</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] font-mono">
+            <div class="p-2 rounded bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+              <span class="text-slate-400 block font-sans">Account Number:</span>
+              <strong class="text-amber-600 dark:text-amber-400">${data.pnb_account}</strong>
+            </div>
+            <div class="p-2 rounded bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+              <span class="text-slate-400 block font-sans">Bank IFSC Code:</span>
+              <strong class="text-amber-600 dark:text-amber-400">${data.pnb_ifsc}</strong>
+            </div>
+          </div>
+          <div class="text-[11px] text-rose-500 font-semibold mt-1">
+            🚨 ${escapeHtml(data.warning)}
+          </div>
+        </div>
+      `;
+    }
+
+    // NOTICES & DIRECTORY
+    function renderNotices(notices) {
+      const container = document.getElementById("noticesContainer");
+      if (!container) return;
+      container.innerHTML = notices.map(n => `
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm text-xs flex justify-between items-start gap-3">
+          <div class="flex-1">
+            <div class="flex items-center space-x-2 mb-1">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300">${n.badge}</span>
+              <span class="text-slate-400 text-[11px]">${n.date}</span>
+              <span class="text-slate-400 text-[11px]">• ${n.department}</span>
+            </div>
+            <h4 class="font-bold text-slate-800 dark:text-slate-200 text-sm">${escapeHtml(n.title)}</h4>
+            <p class="text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">${escapeHtml(n.details)}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterNotices(cat) {
+      if (!collegeDataset) return;
+      if (cat === 'all') {
+        renderNotices(collegeDataset.notices);
+      } else {
+        const filtered = collegeDataset.notices.filter(n => n.category === cat);
+        renderNotices(filtered);
+      }
+    }
+
+    // ADMIN CONSOLE HANDLER
+    async function loadAuditLogs() {
+      try {
+        const res = await fetch("/api/admin/metrics");
+        const data = await res.json();
+        const tbody = document.getElementById("auditLogsBody");
+        if (!tbody) return;
+        tbody.innerHTML = data.recent_logs.map(log => `
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+            <td class="p-2.5 text-slate-400">${log.timestamp.slice(11, 19)}</td>
+            <td class="p-2.5 font-bold text-amber-500">${log.event}</td>
+            <td class="p-2.5 text-slate-500">${log.actor}</td>
+            <td class="p-2.5 text-slate-700 dark:text-slate-300 font-sans">${escapeHtml(log.details)}</td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        console.warn("Audit logs notice:", err);
+      }
+    }
+
+    async function publishNewNotice() {
+      const title = document.getElementById("newNoticeTitle").value.trim();
+      const department = document.getElementById("newNoticeDept").value.trim() || "Exam Cell";
+      const category = document.getElementById("newNoticeCategory").value.trim() || "Examinations";
+      const details = document.getElementById("newNoticeDetails").value.trim();
+
+      if (!title || !details) return alert("Please enter notice title and details!");
+
+      try {
+        const res = await fetch("/api/admin/publish-notice", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, department, category, details, badge: "Live Notice" })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert("Notice published successfully to campus notice board!");
+          document.getElementById("newNoticeTitle").value = "";
+          document.getElementById("newNoticeDetails").value = "";
+          renderNotices(data.all_notices);
+          loadAuditLogs();
+        }
+      } catch (err) {
+        alert("Failed to publish notice. Check backend.");
+      }
+    }
+
+    // LANDING FAQS
+    function loadLandingFaqs() {
+      const faqs = [
+        {
+          q: "What is the admission process for B.Tech at ABES EC?",
+          a: "85% of seats are allotted through UPTAC counseling based on JEE Main ranks. 15% seats are reserved for Management Quota / Direct Admission based on 10+2 marks (minimum 45% aggregate in Physics, Math & Chemistry/CS). Applications can be submitted online at https://erp.abes.ac.in/onlineregistration/."
+        },
+        {
+          q: "Who is the Director of ABES Engineering College?",
+          a: "The Director of ABES Engineering College is Prof. (Dr.) Devendra Kumar Sharma (Ph.D., M.Tech, 26+ years of academic and administrative experience). The Chairman is Shri Neeraj Goel and General Secretary is Shri Shashwat Goel."
+        },
+        {
+          q: "What is the highest and average placement package at ABES EC?",
+          a: "In recent drives, the highest package reached ₹45.0 LPA (Amazon & Global Tech), with an average package of ₹5.27 LPA and 1,870+ placement offers. Over 500 marquee recruiters visit campus including Cisco, HCL, TCS, Cognizant, Infosys, and Capgemini."
+        },
+        {
+          q: "What is the last date of fee submission at ABES EC?",
+          a: "For the Odd Semester, the last date without late fee is July 31st (late fees applicable till August 25th). For the Even Semester, the last date is January 20th (late fees applicable till February 15th). Payments must be made via ABES ERP or direct PNB RTGS/NEFT. Cash is strictly prohibited with a Rs. 10,000 fine."
+        },
+        {
+          q: "What are the facilities in the Central Library?",
+          a: "The Dr. A.P.J. Abdul Kalam Central Library houses over 1,20,000 volumes, 12,500 reference titles, and an air-conditioned reading hall with 450+ seats. Under the Book Bank scheme, every student receives a full set of semester textbooks free of charge for the semester. It remains open from 8:30 AM to 8:30 PM (and till 11:00 PM during exam weeks)."
+        }
+      ];
+
+      const container = document.getElementById("landingFaqList");
+      if (!container) return;
+      container.innerHTML = faqs.map(f => `
+        <details class="group p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm cursor-pointer">
+          <summary class="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-200 flex justify-between items-center select-none">
+            <span>${escapeHtml(f.q)}</span>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition"></i>
+          </summary>
+          <p class="mt-2.5 text-xs text-slate-600 dark:text-slate-400 leading-relaxed border-t border-slate-100 dark:border-slate-800 pt-2.5">
+            ${escapeHtml(f.a)}
+          </p>
+        </details>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+  </script>
+</body>
+</html>
